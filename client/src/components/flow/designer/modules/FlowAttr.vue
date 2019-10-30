@@ -41,8 +41,17 @@
 							<a-input placeholder="请输入取值个数" :value="currentSelect.valueNum" @change="valueNumChange" />
 						</a-form-item>
 						<a-form-item  label="CPT" :label-col="formItemLayout.labelCol" :wrapper-col="formItemLayout.wrapperCol">
-							<a-textarea placeholder="Basic usage" :rows="4" :value="currentSelect.CPT" @change="CPTChange"/>
+							<a-textarea :rows="4" :value="currentSelect.CPT" @change="CPTChange"/>
 						</a-form-item>
+						
+						<!-- <a-form-item  :label-col="formItemLayout.labelCol" :wrapper-col="formItemLayout.wrapperCol">
+							<div v-for="(node, index) in currentParents" v-bind:key="node.id" :value="node.id">
+								<a-divider dashed>{{node.nodeName}}</a-divider>	
+								<div v-for="n in node.valueNum" :key="n" :value="n">
+									<a-input :value="currentSelect.CPT[index][n]" @change="CPTChange" />
+								</div>
+							</div>
+						</a-form-item> -->
 					</div>
 				</a-form>
 				

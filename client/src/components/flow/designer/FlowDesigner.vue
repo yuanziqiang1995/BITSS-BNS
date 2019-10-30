@@ -314,13 +314,29 @@
 				this.request.nodeList = [];
 				this.request.linkList = [];
 
+				let str, arr, arr1;
+
 				for(let i=0; i<this.flowData.nodeList.length; i++){
 					let node = this.flowData.nodeList[i];
 					let newnode = new Object();
 					newnode.id = node.id;
 					newnode.nodeName = node.nodeName;
 					newnode.valueNum = node.valueNum;
-					newnode.CPT = node.CPT;
+
+					str = node.CPT;
+					arr = str.split("\n");
+					//console.log(arr);
+					for(let i=0; i<arr.length; i++){
+						arr1 = arr[i].split(',');
+						//console.log(arr1);
+				
+						for (let j=0; j<arr1.length; j++){
+							arr1[j] = parseFloat(arr1[j].toString());
+						}
+						arr[i] = arr1;
+					}
+					//console.log(arr);
+					newnode.CPT = arr;
 					this.request.nodeList.push(newnode);
 				}
 				for(let i=0; i<this.flowData.linkList.length; i++){
@@ -511,77 +527,77 @@
 				});
 			},
 			listenShortcut () {
-				const that = this;
-				document.onkeydown = function(e) {
-					let event = window.event || e;
+				// const that = this;
+				// document.onkeydown = function(e) {
+				// 	let event = window.event || e;
 					
-					if (!that.activeShortcut) return;
-					let key = event.keyCode;
+				// 	if (!that.activeShortcut) return;
+				// 	let key = event.keyCode;
 					
-					switch (key) {
-						case flowConfig.shortcut.multiple.code:
-							that.$refs.flowArea.rectangleMultiple.flag = true;
-							break;
-						case flowConfig.shortcut.dragContainer.code:
-							that.$refs.flowArea.container.dragFlag = true;
-							break;
-						case flowConfig.shortcut.scaleContainer.code:
-							that.$refs.flowArea.container.scaleFlag = true;
-							break;
-						case flowConfig.shortcut.dragTool.code: 
-							that.selectTool('drag');
-							break;
-						case flowConfig.shortcut.connTool.code:
-							that.selectTool('connection');
-							break;
-						case flowConfig.shortcut.zoomInTool.code:
-							that.selectTool('zoom-in');
-							break;
-						case flowConfig.shortcut.zoomOutTool.code:
-							that.selectTool('zoom-out');
-							break;
-						case 37:
-							that.moveNode('left');
-							break;
-						case 38:
-							that.moveNode('up');
-							break;
-						case 39:
-							that.moveNode('right');
-							break;
-						case 40:
-							that.moveNode('down');
-							break;
-					}
+				// 	switch (key) {
+				// 		case flowConfig.shortcut.multiple.code:
+				// 			that.$refs.flowArea.rectangleMultiple.flag = true;
+				// 			break;
+				// 		case flowConfig.shortcut.dragContainer.code:
+				// 			that.$refs.flowArea.container.dragFlag = true;
+				// 			break;
+				// 		case flowConfig.shortcut.scaleContainer.code:
+				// 			that.$refs.flowArea.container.scaleFlag = true;
+				// 			break;
+				// 		case flowConfig.shortcut.dragTool.code: 
+				// 			that.selectTool('drag');
+				// 			break;
+				// 		case flowConfig.shortcut.connTool.code:
+				// 			that.selectTool('connection');
+				// 			break;
+				// 		case flowConfig.shortcut.zoomInTool.code:
+				// 			that.selectTool('zoom-in');
+				// 			break;
+				// 		case flowConfig.shortcut.zoomOutTool.code:
+				// 			that.selectTool('zoom-out');
+				// 			break;
+				// 		case 37:
+				// 			that.moveNode('left');
+				// 			break;
+				// 		case 38:
+				// 			that.moveNode('up');
+				// 			break;
+				// 		case 39:
+				// 			that.moveNode('right');
+				// 			break;
+				// 		case 40:
+				// 			that.moveNode('down');
+				// 			break;
+				// 	}
 					
-					if (event.ctrlKey) {
-						if (event.altKey) {
-							switch (key) {
-								case flowConfig.shortcut.settingModal.code:
-									that.setting();
-									break;
-								case flowConfig.shortcut.testModal.code:
-									that.openTest();
-									break;
-							}
-						}
-					}
-				}
-				document.onkeyup = function(e) {
-					let event = window.event || e;
+				// 	if (event.ctrlKey) {
+				// 		if (event.altKey) {
+				// 			switch (key) {
+				// 				case flowConfig.shortcut.settingModal.code:
+				// 					that.setting();
+				// 					break;
+				// 				case flowConfig.shortcut.testModal.code:
+				// 					that.openTest();
+				// 					break;
+				// 			}
+				// 		}
+				// 	}
+				// }
+				// document.onkeyup = function(e) {
+				// 	let event = window.event || e;
 					
-					let key = event.keyCode;
-					if (key == flowConfig.shortcut.dragContainer.code) {
-						that.$refs.flowArea.container.dragFlag = false;
-					} else if (key == flowConfig.shortcut.scaleContainer.code) {
-						event.preventDefault();
-						that.$refs.flowArea.container.scaleFlag = false;
-					} else if (key == flowConfig.shortcut.multiple.code) {
-						that.$refs.flowArea.rectangleMultiple.flag = false;
-					}
-				}
+				// 	let key = event.keyCode;
+				// 	if (key == flowConfig.shortcut.dragContainer.code) {
+				// 		that.$refs.flowArea.container.dragFlag = false;
+				// 	} else if (key == flowConfig.shortcut.scaleContainer.code) {
+				// 		event.preventDefault();
+				// 		that.$refs.flowArea.container.scaleFlag = false;
+				// 	} else if (key == flowConfig.shortcut.multiple.code) {
+				// 		that.$refs.flowArea.rectangleMultiple.flag = false;
+				// 	}
+				// }
 				
-				ZFSN.consoleLog(['初始化快捷键成功...']);
+				// ZFSN.consoleLog(['初始化快捷键成功...']);
 			},
 			listenPage () {
 				window.onbeforeunload = function (e) {
