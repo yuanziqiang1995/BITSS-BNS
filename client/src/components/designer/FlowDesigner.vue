@@ -180,6 +180,7 @@
 	import ShortcutModal from './modules/ShortcutModal'
 	import UsingDocModal from './modules/UsingDocModal'
 	import TestModal from './modules/TestModal'
+	import { createNetwork, queryInference } from '@/api/bn'
 	//import { CREATE } from './api/bn.js'
 
 	export default {
@@ -302,7 +303,7 @@
 				this.queryList.evidence = [];
 				this.queryList.id = this.currentSelect.id;
 				
-				console.log(this.currentParents);
+				//console.log(this.currentParents);
 				for(let i=0; i<this.currentParents.length; i++){
 					let node = this.currentParents[i];
 					let newevi = new Object();
@@ -313,6 +314,15 @@
 				//this.request.id = '1';
 				console.log(this.queryList);
 				//let user_info = CREATE(this.queryList);
+				queryInference(this.queryList).then(response => {
+					this.$notify({
+					title: '成功',
+					message: response.data.msg,
+					type: 'success',
+					duration: 2000
+					})
+				})
+				
 			},
 			createBN () {
 				this.request.id = '';
@@ -358,8 +368,19 @@
 				let id = this.getUuid();
 				this.request.id = id;
 				console.log(this.request);
-				let user_info = CREATE(this.request);
-				console.log(user_info);
+				//let user_info = CREATE(this.request);
+				//console.log(user_info);
+
+				this.listLoading = true
+				createNetwork(this.request).then(response => {
+					this.$notify({
+					title: '成功',
+					message: response.data.msg,
+					type: 'success',
+					duration: 2000
+					})
+				})
+				
 			
 			},
 			onChange (e) {
