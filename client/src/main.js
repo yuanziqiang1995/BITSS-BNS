@@ -1,22 +1,50 @@
-// The Vue build version to load with the `import` command
-// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
+/* eslint-disable no-unused-vars */
 import Vue from 'vue'
-import Antd from 'ant-design-vue'
-import App from './App'
-import 'ant-design-vue/dist/antd.css'
-import router from './router'
+import 'normalize.css/normalize.css' // A modern alternative to CSS resets
+
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
+import locale from 'element-ui/lib/locale/lang/en' // lang i18n
+
+import '@/styles/index.scss' // global css
+
 import VueContextMenu from 'vue-contextmenu'
-import vcolorpicker from 'vcolorpicker'
+
 Vue.config.productionTip = false
 
-Vue.use(Antd)
-Vue.use(VueContextMenu)
-Vue.use(vcolorpicker)
+import App from './App'
+import store from './store'
+import router from './router'
 
-/* eslint-disable no-new */
+import '@/icons' // icon
+import '@/permission' // permission control
+
+import $ from 'jquery'
+
+import drawnetwork from './components/designer/index.js'
+Vue.use(drawnetwork)
+
+/**
+ * If you don't want to use mock-server
+ * you want to use MockJs for mock api
+ * you can execute: mockXHR()
+ *
+ * Currently MockJs will be used in the production environment,
+ * please remove it before going online! ! !
+ */
+import { mockXHR } from '../mock'
+if (process.env.NODE_ENV === 'production') {
+  mockXHR()
+}
+
+// set ElementUI lang to EN
+Vue.use(ElementUI, { locale })
+Vue.use(VueContextMenu)
+Vue.config.productionTip = false
+
 new Vue({
   el: '#app',
   router,
-  components: { App },
-  template: '<App/>'
+  store,
+  render: h => h(App)
 })
