@@ -1,6 +1,6 @@
-spring:
-  datasource:
-    url: jdbc:mysql://172.19.7.116:3306/ai?characterEncoding=utf8&useSSL=false
-    username: root
-    password: Aisino123.
-    driverClassName: com.mysql.jdbc.Driver
+#spring:
+#  datasource:
+#    url: jdbc:mysql://127.0.0.1:3306/invoice?characterEncoding=utf8&useSSL=false
+#    username: root
+#    password: rout
+#    driverClassName: com.mysql.jdbc.Driver

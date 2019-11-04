@@ -23,8 +23,10 @@ public class FileCreater {
         }
         return shortBuffer.toString();
     }
-    public static String getFileName(String folderPathm){
-        return String.format("%s/StaticDiscreteNetwork-%s.txt",folderPathm,generateShortUuid());
+    public static String getFileName(String folderPathm,String id){
+        if(id==null||id.equals(""))
+            return String.format("%s/StaticDiscreteNetwork-%s.txt",folderPathm,generateShortUuid());
+        else return String.format("%s/StaticDiscreteNetwork-%s.txt",folderPathm,id);
     }
 
     public static void saveAsFileWriter(String filePath, String content) {

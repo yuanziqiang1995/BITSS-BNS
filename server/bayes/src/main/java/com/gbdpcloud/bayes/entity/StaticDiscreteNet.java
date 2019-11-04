@@ -1,10 +1,18 @@
 package com.gbdpcloud.bayes.entity;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import java.util.List;
 
 public class StaticDiscreteNet {
-    private List<StaticDiscreteNode> variables;
-    private List<String> edges;
+    public List<StaticDiscreteNode> variables;
+    public List<String> edges;
+    public HashMap<String,Integer> MapIdIndex = new HashMap<>();
+
+    public StaticDiscreteNet(){
+        variables = new ArrayList<>();
+        edges = new ArrayList<>();
+    }
 
     public List<StaticDiscreteNode> getVariables() {
         return variables;

@@ -7,7 +7,7 @@ public class StaticDiscreteNode {
     private Integer variableCard;
     private List<List<Double>>values;
     private List<String>evidence;
-    private List<Integer>evidenceCard;
+    public List<Integer>evidenceCard;
 
     public String getVariable() {
         return variable;
@@ -53,7 +53,7 @@ public class StaticDiscreteNode {
         StringBuilder str = new StringBuilder("variable=\'" + variable + "\'" +
                 ", variable_card=" + variableCard +
                 ", values=" + values.toString());
-        if(evidence!=null){
+        if(evidence!=null&&evidence.size()>0){
             str.append(",evidence=[");
             for(int i=0;i<evidence.size();i++){
                 String eviStr = "\'%s\'";
@@ -61,7 +61,7 @@ public class StaticDiscreteNode {
                 if(i!=evidence.size() - 1)
                     str.append(",");
             }
-            str.append("],evidence_card=").append(evidenceCard.toString());
+            if(evidenceCard!=null&&evidenceCard.size()>0) str.append("],evidence_card=").append(evidenceCard.toString());
         }
         return str.toString();
     }
