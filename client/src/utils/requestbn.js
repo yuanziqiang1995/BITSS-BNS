@@ -10,7 +10,7 @@ import { getToken } from '@/utils/auth'
 // })
 
 const service = axios.create({
-  baseURL: 'http://10.4.20.38:8000', // api的base_url
+  baseURL: 'http://10.4.20.62:8080', // api的base_url
   timeout: 5000 // request timeout
 })
 
