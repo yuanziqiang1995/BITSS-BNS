@@ -1,0 +1,4 @@
+[('4cae46bc15e441ae83111aa22a8c5415','26a82a17ccf8459c9f844d877b06a436'),('6819e32ecce143c9bc149c99a3808d3f','26a82a17ccf8459c9f844d877b06a436')]
+variable='6819e32ecce143c9bc149c99a3808d3f', variable_card=2, values=[[0.8, 0.2]]
+variable='4cae46bc15e441ae83111aa22a8c5415', variable_card=2, values=[[0.8, 0.2]]
+variable='26a82a17ccf8459c9f844d877b06a436', variable_card=2, values=[[0.4, 0.1, 0.35, 0.15], [0.6, 0.9, 0.65, 0.85]],evidence=['4cae46bc15e441ae83111aa22a8c5415','6819e32ecce143c9bc149c99a3808d3f'],evidence_card=[2, 2]
