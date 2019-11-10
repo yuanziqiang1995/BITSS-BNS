@@ -1,5 +1,7 @@
 package com.gbdpcloud.bayes.vo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class StaticDiscreteNodeVo {
@@ -7,11 +9,13 @@ public class StaticDiscreteNodeVo {
     //     "id": "common-4f1731dcda61468389f0082097f41558",
 //             "nodeName": "节点",
 //             "valueNum": "2",
-//             "cpt": "0.8, 0,2"
+//             "CPT": "0.8, 0,2"
     private String id;
     private String nodeName;
     private String valueNum;
-    private List<List<Double>> cpt;
+
+    @JsonProperty("CPT")
+    private List<List<Double>> CPT;
     public List<String> sequence;
 
     public List<String> getSequence() {
@@ -24,7 +28,7 @@ public class StaticDiscreteNodeVo {
                 "id='" + id + '\'' +
                 ", nodeName='" + nodeName + '\'' +
                 ", valueNum='" + valueNum + '\'' +
-                ", cpt=" + cpt +
+                ", CPT=" + CPT +
                 ", sequence=" + sequence +
                 '}';
     }
@@ -57,11 +61,11 @@ public class StaticDiscreteNodeVo {
         this.valueNum = valueNum;
     }
 
-    public List<List<Double>> getCpt() {
-        return cpt;
+    public List<List<Double>> getCPT() {
+        return CPT;
     }
 
-    public void setCpt(List<List<Double>> cpt) {
-        this.cpt = cpt;
+    public void setCPT(List<List<Double>> CPT) {
+        this.CPT = CPT;
     }
 }

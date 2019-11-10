@@ -31,6 +31,7 @@ public class StaticDiscreteController {
 
     @PostMapping("/bayes/static/discrete/create")
     public Result bayes(@RequestBody StaticDiscreteVo staticDiscreteNet){
+        staticDiscreteService.networkToFile(staticDiscreteNet);
         return ResultGenerator.ok();
     }
 

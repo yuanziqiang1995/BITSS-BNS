@@ -39,11 +39,11 @@ public class StaticDiscreteService {
             StaticDiscreteNode staticDiscreteNode = new StaticDiscreteNode();
 
             staticDiscreteNode.setVariable(staticDiscreteNodeVo.getId());
-
+            System.out.println(staticDiscreteNode.getVariable());
             staticDiscreteNode.setVariableCard(Integer.valueOf(staticDiscreteNodeVo.getValueNum()));
 
-            staticDiscreteNode.setValues(staticDiscreteNodeVo.getCpt());
-
+            staticDiscreteNode.setValues(staticDiscreteNodeVo.getCPT());
+            System.out.println(staticDiscreteNode.getValues());
             //staticDiscreteNode.setEvidence(new ArrayList<>());
             staticDiscreteNode.setEvidence(staticDiscreteNodeVo.getSequence());
             //staticDiscreteNode.setEvidence(new ArrayList<>());
