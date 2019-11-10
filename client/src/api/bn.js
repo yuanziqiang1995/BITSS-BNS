@@ -5,7 +5,7 @@ import request from '@/utils/requestbn'
 export function createNetwork(data) {
   return request({
     datatype: 'json',
-    url: '/bayes/static/discrete',
+    url: '/bayes/static/discrete/create',
     method: 'post',
     data
   })
@@ -15,6 +15,7 @@ export function createNetwork(data) {
 export function queryInference(data) {
   return request({
     datatype: 'json',
+    url: '/bayes/static/discrete/query',
     method: 'post',
     data
   })

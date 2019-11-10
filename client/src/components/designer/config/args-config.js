@@ -2,7 +2,7 @@
 export let flowConfig = {
   jsPlumbInsConfig: {
     Connector: [
-      'Flowchart',
+      'StateMachine',
       {
         gap: 5,
         cornerRadius: 8,

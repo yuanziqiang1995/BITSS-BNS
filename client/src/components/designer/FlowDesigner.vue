@@ -128,7 +128,7 @@
 										</el-select-option>
 								</el-select> -->
 								<el-radio-group v-model="node.evidence">
-									<el-radio v-for="n in node.valueNum" :key="n" :label="n">{{n}}</el-radio>
+									<el-radio v-for="n in node.valueNum" :key="n-1" :label="n-1">{{n-1}}</el-radio>
 								</el-radio-group>
 							</el-form-item>
 						</div>
@@ -138,6 +138,17 @@
 					</div>
 				
 				</el-form>
+				<div v-if="showQueryResult">
+					<el-card class="box-card">
+					<div slot="header" class="clearfix">
+						<span>查询结果</span>
+						<el-button style="float: right; padding: 3px 0" type="text" @click="handleQueryResult">关闭</el-button>
+					</div>
+					<div class="text item">
+						{{response}}
+					</div>
+					</el-card>
+				</div>
 				
 			</el-aside>
 		</el-container>
@@ -220,6 +231,8 @@
 		},
 		data () {
 			return {
+				showQueryResult: false,
+				queryResult: '',
 				info: {
 				},
 				formItemLayout: {
@@ -229,10 +242,12 @@
 				request: {
 					id: '',
 					nodeList: [],
-					linkList: []
+					linkList: [],
 				},
+				response: '',
 				queryList: {
-					id: '',
+					networkId: '',
+					targetId: '',
 					evidence: []
 				},
 				evi:{
@@ -299,9 +314,27 @@
 			}
 		},
 		methods: {
+			handleQueryResult (){
+				this.showQueryResult = false;
+				this.response = '';
+			},
+			getParentNodes (node){
+				const that = this;
+
+				let link;
+				let count=0;
+				let parent = []
+				for(let i=0; i<this.flowData.linkList.length; i++){
+					if(this.flowData.linkList[i].targetId == node.id){
+						parent.push(this.flowData.linkList[i].sourceId);
+					}
+				}				
+				return parent;
+			},
 			infer () {
 				this.queryList.evidence = [];
-				this.queryList.id = this.currentSelect.id;
+				this.queryList.targetId = this.currentSelect.id;
+				this.queryList.networkId = this.networkId;
 				
 				//console.log(this.currentParents);
 				for(let i=0; i<this.currentParents.length; i++){
@@ -321,67 +354,100 @@
 					type: 'success',
 					duration: 2000
 					})
+					this.response = response;
 				})
-				
+				console.log(this.response);
+				if(this.response.data.code == '40000'){
+					this.$alert('输入的网络格式有误', '错误', {
+						confirmButtonText: '确定',
+					});
+				}
+				else{
+					this.showQueryResult = true;
+					this.queryResult = this.response.data.data;
+				}
 			},
 			createBN () {
-				this.request.id = '';
-				this.request.nodeList = [];
-				this.request.linkList = [];
-
-				let str, arr, arr1;
-
-				for(let i=0; i<this.flowData.nodeList.length; i++){
-					let node = this.flowData.nodeList[i];
-					let newnode = new Object();
-					newnode.id = node.id;
-					newnode.nodeName = node.nodeName;
-					newnode.valueNum = node.valueNum;
-
-					str = node.CPT;
-					arr = str.split("\n");
-					//console.log(arr);
-					for(let i=0; i<arr.length; i++){
-						arr1 = arr[i].split(',');
-						//console.log(arr1);
 				
-						for (let j=0; j<arr1.length; j++){
-							arr1[j] = parseFloat(arr1[j].toString());
-						}
-						arr[i] = arr1;
+				var array = [];
+				for (var i = 0; i < this.flowData.nodeList.length; i++) {
+					if (array.indexOf(this.flowData.nodeList[i].nodeName) === -1) {
+						array.push(this.flowData.nodeList[i].nodeName)
 					}
-					//console.log(arr);
-					newnode.CPT = arr;
-					this.request.nodeList.push(newnode);
 				}
-				for(let i=0; i<this.flowData.linkList.length; i++){
-					let link = this.flowData.linkList[i];
-					let newlink = new Object();
-					newlink.id = link.id;
-					newlink.sourceId = link.sourceId;
-					newlink.targetId = link.targetId;
-					newlink.label = link.label;
-					this.request.linkList.push(newlink);
+				//console.log(array);
+				if (array.length != this.flowData.nodeList.length){
+					this.$alert('节点名称不允许有重复', '错误', {
+						confirmButtonText: '确定',
+						// callback: action => {
+						// 	this.$message({
+						// 	type: 'info',
+						// 	message: `action: ${ action }`
+						// 	});
+						// }
+					});
 				}
-				//this.request.id = '1';
+				else{
+					this.request.id = '';
+					this.request.nodeList = [];
+					this.request.linkList = [];
 
-				let id = this.getUuid();
-				this.request.id = id;
-				console.log(this.request);
-				//let user_info = CREATE(this.request);
-				//console.log(user_info);
+					let str, arr, arr1;
 
-				this.listLoading = true
-				createNetwork(this.request).then(response => {
-					this.$notify({
-					title: '成功',
-					message: response.data.msg,
-					type: 'success',
-					duration: 2000
-					})
-				})
-				
-			
+					for(let i=0; i<this.flowData.nodeList.length; i++){
+						let node = this.flowData.nodeList[i];
+						let newnode = new Object();
+						newnode.id = node.id;
+						newnode.nodeName = node.nodeName;
+						newnode.valueNum = node.valueNum;
+
+						str = node.CPT;
+						arr = str.split("\n");
+						
+						//console.log(arr);
+						for(let i=0; i<arr.length; i++){
+							arr1 = arr[i].split(',');
+							//console.log(arr1);
+					
+							for (let j=0; j<arr1.length; j++){
+								arr1[j] = parseFloat(arr1[j].toString());
+							}
+							arr[i] = arr1;
+						}
+						//console.log(arr);
+						newnode.CPT = arr;						
+						newnode.sequence = this.getParentNodes(node);
+
+						this.request.nodeList.push(newnode);
+					}
+					for(let i=0; i<this.flowData.linkList.length; i++){
+						let link = this.flowData.linkList[i];
+						let newlink = new Object();
+						newlink.id = link.id;
+						newlink.sourceId = link.sourceId;
+						newlink.targetId = link.targetId;
+						newlink.label = link.label;
+						this.request.linkList.push(newlink);
+					}
+
+					//this.request.id = '1';
+
+					this.request.id = this.networkId;
+					
+					console.log(this.request);
+					//let user_info = CREATE(this.request);
+					//console.log(user_info);
+
+					this.listLoading = true
+					createNetwork(this.request).then(response => {
+						this.$notify({
+						title: '成功',
+						message: response.data.msg,
+						type: 'success',
+						duration: 2000
+						})
+					})				
+				}			
 			},
 			onChange (e) {
 				this.currentSelect.valueNum = e.target.value;
@@ -456,25 +522,6 @@
 					};
 				}
 			},
-			// getParentNodes (){
-			// 	const that = this;
-
-			// 	let link;
-			// 	let count=0;
-			// 	for(link in that.linkList){
-			// 		if(link.targetId == that.currentSelect.id){
-			// 			let node;
-			// 			for(node in that.nodeList){
-			// 				if(node.id == link.targetId){
-			// 					break;
-			// 				}
-			// 			}
-			// 			count += 1;
-			// 			that.parentNodes.push(node);
-			// 		}
-			// 	}
-			// 	that.parentNum = count;
-			// },
 			initJsPlumb () {
 				const that = this;
 				
@@ -536,6 +583,10 @@
 					ConnectionsDetachable: flowConfig.jsPlumbConfig.conn.isDetachable
 				});
 				
+				let id = this.getUuid();
+				this.networkId = id;
+				console.log(this.networkId);
+
 				ZFSN.consoleLog(['实例化JsPlumb成功...']);
 			},
 			initNodeSelectArea () {
