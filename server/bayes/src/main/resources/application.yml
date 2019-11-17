@@ -1,6 +1,10 @@
+mybatis:
+  mapper-locations: classpath:/mapper/*.xml
+  config-location:  classpath:/mybatis/mybatis-config.xml
+  type-aliases-package: com.gbdpcloud.bayes.entity
 spring:
   datasource:
-    url: jdbc:mysql://10.4.20.28:3306/bayes?characterEncoding=utf8&useSSL=false
+    url: jdbc:mysql://localhost:3306/bayes?characterEncoding=utf8&useSSL=false
     username: root
     password: root
     driverClassName: com.mysql.jdbc.Driver

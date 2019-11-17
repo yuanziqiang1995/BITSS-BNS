@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gbdpcloud.bayes.dao.DiscreteModelDao">
+    <resultMap id="baseResultMap" type="com.gbdpcloud.bayes.entity.DiscreteModel">
+        <id column="id" property="id"/>
+        <result column="model_id" property="modelId"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <select id="getDiscreteModelByID" resultMap="baseResultMap">
+        select id,model_id,create_time from discrete_model where id = #{id}
+    </select>
+</mapper>
