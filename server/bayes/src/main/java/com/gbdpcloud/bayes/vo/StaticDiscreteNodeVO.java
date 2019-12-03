@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public class StaticDiscreteNodeVo {
+public class StaticDiscreteNodeVO {
 
     //     "id": "common-4f1731dcda61468389f0082097f41558",
 //             "nodeName": "节点",
@@ -24,7 +24,7 @@ public class StaticDiscreteNodeVo {
 
     @Override
     public String toString() {
-        return "StaticDiscreteNodeVo{" +
+        return "StaticDiscreteNodeVO{" +
                 "id='" + id + '\'' +
                 ", nodeName='" + nodeName + '\'' +
                 ", valueNum='" + valueNum + '\'' +

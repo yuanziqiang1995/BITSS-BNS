@@ -8,3 +8,8 @@ spring:
     username: root
     password: root
     driverClassName: com.mysql.jdbc.Driver
+
+filepath:
+  model: models
+  input: inputs
+  datasets: /Users/ziqiangyuan/Downloads/bayes-new/

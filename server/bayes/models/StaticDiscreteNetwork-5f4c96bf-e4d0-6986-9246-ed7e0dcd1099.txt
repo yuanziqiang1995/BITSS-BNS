@@ -1,0 +1,3 @@
+[('730ae72e63aa4de1ae5645b7c3de0e57','1ce646a6a98c40bd88847255d30f2b91')]
+variable='730ae72e63aa4de1ae5645b7c3de0e57', variable_card=2, values=[[0.8, 0.2]]
+variable='1ce646a6a98c40bd88847255d30f2b91', variable_card=2, values=[[0.5, 0.5], [0.5, 0.5]],evidence=['730ae72e63aa4de1ae5645b7c3de0e57'],evidence_card=[2]

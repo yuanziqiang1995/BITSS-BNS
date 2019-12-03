@@ -1,0 +1,3 @@
+[('3789474c96f14caf8c889416d142a434','fa2919dfcec44ed6846cf279116203db')]
+variable='3789474c96f14caf8c889416d142a434', variable_card=2, values=[[0.8, 0.2]]
+variable='fa2919dfcec44ed6846cf279116203db', variable_card=2, values=[[0.5, 0.5], [0.5, 0.5]],evidence=['3789474c96f14caf8c889416d142a434'],evidence_card=[2]

@@ -1,7 +1,7 @@
 package com.gbdpcloud.bayes.vo;
 
 
-public class StaticDiscreteLinkVo {
+public class StaticDiscreteLinkVO {
     private String id;
     private String sourceId;
     private String targetId;

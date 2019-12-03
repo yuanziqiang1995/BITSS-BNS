@@ -14,18 +14,18 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import com.alibaba.fastjson.JSONArray;
+
 import com.alibaba.fastjson.JSONObject;
 
 @Service
 public class StaticDiscreteService {
-    private static String folderModel = "model";
+    private static String folderModel = "models";
     private static String folderInput = "inputs";
 
     @Autowired
     DiscreteModelDao discreteModelDao;
 
-    public String networkToFile(StaticDiscreteVo staticDiscreteVo){
+    public String networkToFile(StaticDiscreteVO staticDiscreteVo){
         String uuid = staticDiscreteVo.getModelId();
         staticDiscreteVo.setMap();
         String fileName = FileCreater.getFileName(folderModel,uuid);
@@ -35,31 +35,24 @@ public class StaticDiscreteService {
         DiscreteModel discreteModel = new DiscreteModel();
         BeanUtils.copyProperties(staticDiscreteVo,discreteModel);
         discreteModelDao.createDiscreteModel(discreteModel);
-        /*
+
         StaticDiscreteNet staticDiscreteNet = new StaticDiscreteNet();
-        for(StaticDiscreteLinkVo staticDiscreteLinkVo:staticDiscreteVo.getLinkList()){
+        for(StaticDiscreteLinkVO staticDiscreteLinkVo:staticDiscreteVo.getLinkList()){
             int index = staticDiscreteVo.mapIdIndex.get(staticDiscreteLinkVo.getSourceId());
             staticDiscreteNet.edges.add(staticDiscreteVo.getNodeList().get(index).getId());
             index = staticDiscreteVo.mapIdIndex.get(staticDiscreteLinkVo.getTargetId());
             staticDiscreteNet.edges.add(staticDiscreteVo.getNodeList().get(index).getId());
         }
         int k = 0;
-        for(StaticDiscreteNodeVo staticDiscreteNodeVo:staticDiscreteVo.getNodeList()){
-
-
+        for(StaticDiscreteNodeVO staticDiscreteNodeVo:staticDiscreteVo.getNodeList()){
             StaticDiscreteNode staticDiscreteNode = new StaticDiscreteNode();
-
             staticDiscreteNode.setVariable(staticDiscreteNodeVo.getId());
             System.out.println(staticDiscreteNode.getVariable());
             staticDiscreteNode.setVariableCard(Integer.valueOf(staticDiscreteNodeVo.getValueNum()));
-
             staticDiscreteNode.setValues(staticDiscreteNodeVo.getCPT());
             System.out.println(staticDiscreteNode.getValues());
-            //staticDiscreteNode.setEvidence(new ArrayList<>());
             staticDiscreteNode.setEvidence(staticDiscreteNodeVo.getSequence());
-            //staticDiscreteNode.setEvidence(new ArrayList<>());
             staticDiscreteNet.variables.add(staticDiscreteNode);
-
             staticDiscreteNet.MapIdIndex.put(staticDiscreteNode.getVariable(),k++);
         }
         for(StaticDiscreteNode node: staticDiscreteNet.getVariables()){
@@ -73,9 +66,6 @@ public class StaticDiscreteService {
 
         FileCreater.saveAsFileWriter(fileName + ".txt", staticDiscreteNet.toString());
         return staticDiscreteNet.toString();
-
-         */
-        return "123";
     }
 
 
@@ -122,7 +112,7 @@ public class StaticDiscreteService {
     }
 
 
-    public List<StaticDiscreteVo> getDiscreteModelByID(String id, Integer pages, Integer rows){
+    public List<StaticDiscreteVO> getDiscreteModelByID(String id, Integer pages, Integer rows){
         Integer index = rows * (pages - 1);
         List<DiscreteModel>  result = discreteModelDao.getDiscreteModelByID(id, index, rows);
         if(result.get(0).getTotal()==0)
@@ -131,9 +121,9 @@ public class StaticDiscreteService {
         String fileName = discreteModel.getLocation();
         fileName += ".json";
         String file = FileCreater.readFile(fileName);
-        StaticDiscreteVo staticDiscreteVo = JSONObject.parseObject(file, StaticDiscreteVo.class);
+        StaticDiscreteVO staticDiscreteVo = JSONObject.parseObject(file, StaticDiscreteVO.class);
         BeanUtils.copyProperties(discreteModel, staticDiscreteVo);
-        List<StaticDiscreteVo>json = new ArrayList<>();
+        List<StaticDiscreteVO>json = new ArrayList<>();
         json.add(staticDiscreteVo);
         return json;
     }

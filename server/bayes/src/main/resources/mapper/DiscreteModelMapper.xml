@@ -75,7 +75,7 @@
     </insert>
 
     <update id="deleteDiscreteModel">
-        update discrete_model set del_flag = 1 where user_id = #{id}
+        update discrete_model set del_flag = 1 where model_id = #{id}
     </update>
 
 

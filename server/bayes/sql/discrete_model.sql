@@ -37,7 +37,7 @@ CREATE TABLE `discrete_model` (
 -- ----------------------------
 BEGIN;
 INSERT INTO `discrete_model` VALUES ('1', 'qwe', '2019-11-17 18:35:18', '123', 'adf', '1', 0);
-INSERT INTO `discrete_model` VALUES ('123', 'test', '2019-12-03 14:29:02', '123123', 'model/StaticDiscreteNetwork-123', '123', 0);
+INSERT INTO `discrete_model` VALUES ('123', 'test', '2019-12-03 14:29:02', '123123', 'models/StaticDiscreteNetwork-123', '123', 0);
 INSERT INTO `discrete_model` VALUES ('2', 'sdf', '2019-11-17 18:35:50', '123', 'q', '1', 0);
 INSERT INTO `discrete_model` VALUES ('3', 'asd', '2019-12-03 00:00:00', 'qwe', '345', '2', 0);
 COMMIT;
