@@ -44,17 +44,18 @@ export const constantRoutes = [
   },
 
   {
-    path: '/',
+    path: '',
     component: Layout,
-    redirect: '/dashboard',
+    redirect: 'dashboard',
+    name: 'Dashboard',
     children: [{
       path: 'dashboard',
-      name: 'Dashboard',
       component: () => import('@/views/dashboard/index'),
-      meta: { title: 'Dashboard', icon: 'dashboard' }
+      name: '首页',
+      meta: { title: '首页', icon: 'dashboard', noCache: true }
     }]
-  },
 
+  },
   {
     path: '/draw',
     component: Layout,
@@ -62,11 +63,56 @@ export const constantRoutes = [
     name: 'draw',
     children: [
       {
-        path: 'new',
-        name: 'new',
-        component: () => import('@/views/draw/index'),
-        meta: { title: '构建网络', icon: 'table' }
+        path: 'create',
+        name: 'create',
+        component: () => import('@/views/draw/create'),
+        meta: { title: '新建网络', icon: 'form' }
       }
+    ]
+  },
+  {
+    path: '/draw',
+    component: Layout,
+    redirect: '/draw/new',
+    name: 'draw',
+    children: [
+      {
+        path: 'network',
+        name: 'network',
+        component: () => import('@/views/draw/network'),
+        meta: { title: '我的网络', icon: 'table' }
+      }
+    ]
+  },
+  {
+    path: '/draw',
+    component: Layout,
+    redirect: '/draw/new',
+    name: 'draw',
+    children: [
+      {
+        path: 'dataset',
+        name: 'dataset',
+        component: () => import('@/views/draw/dataset'),
+        meta: { title: '数据管理', icon: 'table' }
+      },
+      
+    ]
+  },
+  {
+    path: '/draw',
+    component: Layout,
+    redirect: '/draw/new',
+    name: 'draw',
+    children: [
+      {
+        path: 'index',
+        name: 'index',
+        component: () => import('@/views/draw/index'),
+        meta: { title: '画网络图', icon: 'table' },
+        hidden: true
+      },
+      
     ]
   },
 

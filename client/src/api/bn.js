@@ -6,6 +6,7 @@ export function createNetwork(data) {
   return request({
     datatype: 'json',
     url: '/bayes/static/discrete/create',
+    //url:'/test',
     method: 'post',
     data
   })
@@ -16,6 +17,7 @@ export function queryInference(data) {
   return request({
     datatype: 'json',
     url: '/bayes/static/discrete/query',
+    //url:'/test',
     method: 'post',
     data
   })
