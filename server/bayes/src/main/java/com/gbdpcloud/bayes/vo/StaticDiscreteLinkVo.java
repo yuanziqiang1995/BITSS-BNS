@@ -4,6 +4,8 @@ package com.gbdpcloud.bayes.vo;
 public class StaticDiscreteLinkVo {
     private String id;
     private String sourceId;
+    private String targetId;
+    private String label;
 
     public String getId() {
         return id;
@@ -37,8 +39,7 @@ public class StaticDiscreteLinkVo {
         this.label = label;
     }
 
-    private String targetId;
-    private String label;
+
 //    "id": "link-d87e5d7ce3f54831a25231f733e8c060",
 //            "sourceId": "common-fd1ae84dca9a4c25800728dcfe344404",
 //            "targetId": "common-4f1731dcda61468389f0082097f41558",

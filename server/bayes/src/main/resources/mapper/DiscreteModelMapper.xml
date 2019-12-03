@@ -2,12 +2,81 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gbdpcloud.bayes.dao.DiscreteModelDao">
     <resultMap id="baseResultMap" type="com.gbdpcloud.bayes.entity.DiscreteModel">
-        <id column="id" property="id"/>
-        <result column="model_id" property="modelId"/>
-        <result column="create_time" property="createTime"/>
+        <id column="model_id" property="modelId"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="model_name" property="modelName"/>
+        <result column="user_id" property="userId"/>
+        <result column="description" property="description"/>
+        <result column="total" property="total"/>
+        <result column="location" property="location"/>
     </resultMap>
 
     <select id="getDiscreteModelByID" resultMap="baseResultMap">
-        select id,model_id,create_time from discrete_model where id = #{id}
+        select user_id,b.total,a.model_id,update_time,model_name,description,location from
+        (select user_id,model_id,update_time,model_name,description,location from discrete_model where model_id = #{id} and del_flag = 0 limit #{index}, #{rows}) a
+        LEFT JOIN
+        (select model_id,count(model_id) as total from discrete_model where model_id = #{id} and del_flag = 0 group by model_id ) b
+        on a.model_id = b.model_id
     </select>
+
+    <select id="getDiscreteModelByUserID" resultMap="baseResultMap">
+        select a.user_id,b.total,model_id,update_time,model_name,description,location from
+        (select user_id,model_id,update_time,model_name,description,location from discrete_model where user_id = #{id} and del_flag = 0 limit #{index}, #{rows}) a
+        LEFT JOIN
+        (select user_id,count(user_id) as total from discrete_model where user_id = #{id} and del_flag = 0 group by user_id ) b
+        on a.user_id = b.user_id
+    </select>
+
+    <insert id="createDiscreteModel" parameterType="com.gbdpcloud.bayes.entity.DiscreteModel">
+        replace into discrete_model(model_id,update_time,model_name,user_id,description,location)
+        value(
+        <choose>
+            <when test="modelId != null and modelId !=''">
+                #{modelId},
+            </when>
+            <otherwise>
+                null,
+            </otherwise>
+        </choose>
+        now(),
+        <choose>
+            <when test="modelName != null and modelName !=''">
+                #{modelName},
+            </when>
+            <otherwise>
+                null,
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="userId != null and userId !=''">
+                #{userId},
+            </when>
+            <otherwise>
+                null,
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="description != null and description !=''">
+                #{description},
+            </when>
+            <otherwise>
+                null,
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="location != null and location !=''">
+                #{location}
+            </when>
+            <otherwise>
+                null
+            </otherwise>
+        </choose>
+        )
+    </insert>
+
+    <update id="deleteDiscreteModel">
+        update discrete_model set del_flag = 1 where user_id = #{id}
+    </update>
+
+
 </mapper>

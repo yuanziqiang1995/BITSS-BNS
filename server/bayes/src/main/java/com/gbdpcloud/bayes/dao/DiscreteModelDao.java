@@ -8,5 +8,16 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface DiscreteModelDao {
 
-    List<DiscreteModel> getDiscreteModelByID(@Param("id") Integer id);
+    List<DiscreteModel> getDiscreteModelByID(@Param("id") String id,
+                                             @Param("index") Integer index,
+                                             @Param("rows") Integer rows);
+
+    List<DiscreteModel> getDiscreteModelByUserID(@Param("id") String id,
+                                                 @Param("index") Integer index,
+                                                 @Param("rows") Integer rows);
+
+    int createDiscreteModel(DiscreteModel discreteModel);
+
+    int deleteDiscreteModel(@Param("id") String id);
+
 }

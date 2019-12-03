@@ -9,7 +9,7 @@ import com.gbdpcloud.bayes.entity.StaticDiscreteNet;
 import com.gbdpcloud.bayes.service.StaticDiscreteService;
 import com.gbdpcloud.bayes.vo.SearchVO;
 import com.gbdpcloud.bayes.vo.StaticDiscreteVo;
-import java.util.List;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +22,7 @@ public class StaticDiscreteController {
     @Autowired
     DiscreteModelDao discreteModelDao;
 
+
     @PostMapping("test/bayes/static/discrete")
     public String testbayes(@RequestBody StaticDiscreteNet staticDiscreteNet){
         return staticDiscreteService.getQueryResult(staticDiscreteNet);
@@ -33,18 +34,46 @@ public class StaticDiscreteController {
         return a;
     }
 
-    @GetMapping("testid")
-    public List<DiscreteModel> testdao(@RequestParam Integer a){
-        return discreteModelDao.getDiscreteModelByID(a);
-    }
 
-    @PostMapping("/bayes/static/discrete/create")
-    public Result bayes(@RequestBody StaticDiscreteVo staticDiscreteNet){
+    @PostMapping("/bayes/static/discrete/model")
+    public Result createDiscreteModel(@RequestBody StaticDiscreteVo staticDiscreteNet){
+
         staticDiscreteService.networkToFile(staticDiscreteNet);
-        System.out.println(discreteModelDao.getDiscreteModelByID(1).get(0).toString());
         return ResultGenerator.ok();
     }
 
+    @DeleteMapping("/bayes/static/discrete/model")
+    public Result deleteDiscreteModel(@RequestParam(value = "id") String id){
+        discreteModelDao.deleteDiscreteModel(id);
+        return ResultGenerator.ok();
+    }
+
+    @GetMapping("/bayes/static/discrete/model")
+    public Result getDiscreteModelByID(@RequestParam(value = "id") String id,
+                                       @RequestParam(value = "pages", defaultValue = "1", required = false) Integer pages,
+                                       @RequestParam(value = "rows", defaultValue = "10", required = false) Integer rows){
+        try {
+            return ResultGenerator.ok(staticDiscreteService.getDiscreteModelByID(id,pages,rows));
+        }
+        catch (Exception e){
+            return ResultGenerator.error(e.getMessage());
+        }
+    }
+    @GetMapping("/bayes/static/discrete/model/user")
+    public Result getDiscreteModelByUserID(@RequestParam(value = "id") String id,
+                                       @RequestParam(value = "pages", defaultValue = "1", required = false) Integer pages,
+                                       @RequestParam(value = "rows", defaultValue = "10", required = false) Integer rows){
+        try {
+            return ResultGenerator.ok(staticDiscreteService.getDiscreteModelByUserID(id,pages,rows));
+        }
+        catch (Exception e){
+            return ResultGenerator.error(e.getMessage());
+        }
+    }
+//    @GetMapping("/bayes/static/discrete/search")
+//    public Result getDiscreteModelByID(@RequestParam(value = "id", defaultValue = "", required = false) String id){
+//
+//    }
 
     @PostMapping("/bayes/static/discrete/query")
     public Result bayes(@RequestBody SearchVO searchVO){

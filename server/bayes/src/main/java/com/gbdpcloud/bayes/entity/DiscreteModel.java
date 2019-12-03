@@ -7,16 +7,19 @@ import java.util.Date;
 @Getter
 @Setter
 public class DiscreteModel {
-    private Integer id;
     private String modelId;
-    private Date createTime;
+    private String modelName;
+    private Date updateTime;
+    private String userId;
+    private String description;
+    private Integer total;
+    private String location;
 
     @Override
     public String toString() {
         return "DiscreteModel{" +
-                "id=" + id +
                 ", modelId='" + modelId + '\'' +
-                ", createTime=" + createTime +
+                ", createTime=" + updateTime +
                 '}';
     }
 }

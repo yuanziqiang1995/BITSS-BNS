@@ -1,7 +1,10 @@
-package com.gbdpcloud.bayes.tools;
+package com.gbdpcloud.bayes.utils;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 public class FileCreater {
@@ -25,8 +28,8 @@ public class FileCreater {
     }
     public static String getFileName(String folderPathm,String id){
         if(id==null||id.equals(""))
-            return String.format("%s/StaticDiscreteNetwork-%s.txt",folderPathm,generateShortUuid());
-        else return String.format("%s/StaticDiscreteNetwork-%s.txt",folderPathm,id);
+            return String.format("%s/StaticDiscreteNetwork-%s",folderPathm,generateShortUuid());
+        else return String.format("%s/StaticDiscreteNetwork-%s",folderPathm,id);
     }
 
     public static void saveAsFileWriter(String filePath, String content) {
@@ -47,5 +50,21 @@ public class FileCreater {
                 ex.printStackTrace();
             }
         }
+    }
+
+    public static String readFile(String FILE_IN){
+        String str;
+        File file=new File(FILE_IN);
+        try {
+            FileInputStream in=new FileInputStream(file);
+            int size=in.available();
+            byte[] buffer=new byte[size];
+            in.read(buffer);
+            in.close();
+            str=new String(buffer, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            return null;
+        }
+        return str;
     }
 }
