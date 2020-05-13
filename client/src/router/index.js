@@ -108,14 +108,31 @@ export const constantRoutes = [
       {
         path: 'index',
         name: 'index',
-        component: () => import('@/views/draw/index'),
+        component: () => import('@/views/bayes/draw'),
+        // component: () => import('@/views/bayes/bayes'),
         meta: { title: '画网络图', icon: 'table' },
         hidden: true
       },
       
     ]
   },
-
+  {
+    path: '/draw',
+    component: Layout,
+    redirect: '/draw/new',
+    name: 'draw',
+    children: [
+      {
+        path: 'useData',
+        name: 'useData',
+        // component: () => import('@/views/draw/index'),
+        component: () => import('@/views/bayes/bayes'),
+        meta: { title: '创建网络', icon: 'table' },
+        hidden: true
+      },
+      
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
