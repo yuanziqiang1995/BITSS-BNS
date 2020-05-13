@@ -3,13 +3,19 @@ mybatis:
   config-location:  classpath:/mybatis/mybatis-config.xml
   type-aliases-package: com.gbdpcloud.bayes.entity
 spring:
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
   datasource:
-    url: jdbc:mysql://localhost:3306/bayes?characterEncoding=utf8&useSSL=false
+    url: jdbc:mysql://localhost:3306/bayes?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Hongkong
     username: root
     password: root
     driverClassName: com.mysql.jdbc.Driver
-
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
 filepath:
   model: models
   input: inputs
-  datasets: /Users/ziqiangyuan/Downloads/bayes-new/
+  datasets: datasets

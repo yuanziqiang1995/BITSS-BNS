@@ -1,14 +1,19 @@
 package com.gbdpcloud.bayes.service;
 
 import com.gbdpcloud.bayes.dao.DiscreteModelDao;
+import com.gbdpcloud.bayes.entity.DataSets;
 import com.gbdpcloud.bayes.entity.DiscreteModel;
 import com.gbdpcloud.bayes.entity.StaticDiscreteNet;
 import com.gbdpcloud.bayes.entity.StaticDiscreteNode;
 import com.gbdpcloud.bayes.utils.FileCreater;
+import com.gbdpcloud.bayes.utils.IdGen;
 import com.gbdpcloud.bayes.vo.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.system.ApplicationHome;
 import org.springframework.stereotype.Service;
+
+import java.io.File;
 import java.util.List;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,9 +32,19 @@ public class StaticDiscreteService {
 
     public String networkToFile(StaticDiscreteVO staticDiscreteVo){
         String uuid = staticDiscreteVo.getModelId();
+        if(uuid == null){
+            uuid = IdGen.uuid();
+            staticDiscreteVo.setModelId(uuid);
+        }
         staticDiscreteVo.setMap();
-        String fileName = FileCreater.getFileName(folderModel,uuid);
-        staticDiscreteVo.setLocation(fileName);
+        String location = new ApplicationHome(this.getClass()).getSource().getParentFile().getPath() + "\\uploads\\network\\" ;
+        File folder = new File(location);
+
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        String fileName = location + uuid;
+        staticDiscreteVo.setLocation(location);
         String input = JSONObject.toJSONString(staticDiscreteVo);
         FileCreater.saveAsFileWriter(fileName + ".json", input);
         DiscreteModel discreteModel = new DiscreteModel();
@@ -65,7 +80,8 @@ public class StaticDiscreteService {
         }
 
         FileCreater.saveAsFileWriter(fileName + ".txt", staticDiscreteNet.toString());
-        return staticDiscreteNet.toString();
+//        return staticDiscreteNet.toString();
+        return uuid;
     }
 
 
@@ -136,4 +152,21 @@ public class StaticDiscreteService {
             return new ArrayList<>();
         return result;
     }
+
+    public int count(){
+        return discreteModelDao.count();
+    }
+
+    public List<DataSets> list(int page, int pageSize) {
+        return discreteModelDao.list(pageSize, pageSize * (page - 1));
+    }
+
+    public int delete(String id) {
+        return discreteModelDao.delete(id);
+    }
+
+    public int update(DiscreteModel discreteModel) {
+        return discreteModelDao.update(discreteModel);
+    }
+
 }

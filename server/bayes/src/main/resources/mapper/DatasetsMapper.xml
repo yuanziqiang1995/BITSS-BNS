@@ -10,4 +10,59 @@
         #{location},
         #{type})
     </insert>
+    <select id="selectById" resultType="com.gbdpcloud.bayes.entity.DataSets">
+        select
+            id,
+            `type`,
+            location,
+            user_id,
+            update_time,
+            format,
+            `name`,
+            description
+            from datasets where id=#{id} limit 1
+    </select>
+    <select id="list" resultType="com.gbdpcloud.bayes.entity.DataSets">
+        select
+            id,
+            `type`,
+            location,
+            user_id,
+            update_time,
+            format,
+            `name`,
+            description
+            from datasets where del_flag = 0 order by update_time desc limit #{offset},#{limit}
+    </select>
+
+    <update id="delete">
+        update datasets set del_flag = 1 where id = #{id}
+    </update>
+
+    <update id="update" parameterType="com.gbdpcloud.bayes.entity.DataSets">
+        update datasets set
+            `name` = #{name},
+            update_time = now(),
+            format = #{format},
+            description = #{description}
+            where id = #{id}
+    </update>
+
+    <select id="count" resultType="int">
+        select count(*) from datasets where del_flag = 0
+    </select>
+
+    <insert id="insert" parameterType="com.gbdpcloud.bayes.entity.DataSets">
+        insert into datasets(id,user_id,update_time,del_flag,location,`type`,`name`,format,description) values
+        (#{id},
+        #{userId},
+        now(),
+        0,
+        #{location},
+        #{type},
+        #{name},
+        #{format},
+        #{description})
+    </insert>
+
 </mapper>

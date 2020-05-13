@@ -14,6 +14,7 @@ public class DiscreteModel {
     private String description;
     private Integer total;
     private String location;
+    private String datasetId;
 
     @Override
     public String toString() {

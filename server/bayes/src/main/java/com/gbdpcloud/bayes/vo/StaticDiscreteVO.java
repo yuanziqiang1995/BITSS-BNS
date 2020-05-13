@@ -13,6 +13,15 @@ public class StaticDiscreteVO {
     private Date updateTime;
     private List<StaticDiscreteNodeVO> nodeList;
     private List<StaticDiscreteLinkVO>linkList;
+    private String datasetId;
+
+    public String getDatasetId() {
+        return datasetId;
+    }
+
+    public void setDatasetId(String datasetId) {
+        this.datasetId = datasetId;
+    }
 
     public Date getUpdateTime() {
         return updateTime;

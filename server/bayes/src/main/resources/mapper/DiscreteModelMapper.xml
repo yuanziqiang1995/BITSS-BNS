@@ -28,7 +28,7 @@
     </select>
 
     <insert id="createDiscreteModel" parameterType="com.gbdpcloud.bayes.entity.DiscreteModel">
-        replace into discrete_model(model_id,update_time,model_name,user_id,description,location)
+        replace into discrete_model(model_id,update_time,model_name,user_id,description,location,dataset_id)
         value(
         <choose>
             <when test="modelId != null and modelId !=''">
@@ -65,7 +65,15 @@
         </choose>
         <choose>
             <when test="location != null and location !=''">
-                #{location}
+                #{location},
+            </when>
+            <otherwise>
+                null,
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="datasetId != null and datasetId !=''">
+                #{datasetId}
             </when>
             <otherwise>
                 null
@@ -78,5 +86,42 @@
         update discrete_model set del_flag = 1 where model_id = #{id}
     </update>
 
+    <select id="list" resultType="com.gbdpcloud.bayes.entity.DiscreteModel">
+        select
+            model_id,
+            model_name,
+            user_id,
+            update_time,
+            description,
+            dataset_id
+            from discrete_model where del_flag = 0 order by update_time desc limit #{offset},#{limit}
+    </select>
+
+    <update id="delete">
+        update discrete_model set del_flag = 1 where model_id = #{id}
+    </update>
+
+    <update id="update" parameterType="com.gbdpcloud.bayes.entity.DiscreteModel">
+        update discrete_model set
+            model_name = #{modelName},
+            update_time = now(),
+            description = #{description}
+            where model_id = #{modelId}
+    </update>
+
+    <select id="count" resultType="int">
+        select count(*) from discrete_model where del_flag = 0
+    </select>
+
+    <insert id="insert" parameterType="com.gbdpcloud.bayes.entity.DiscreteModel">
+        insert into discrete_model(model_id,model_name,update_time,description,location,user_id,del_flag) values
+        (#{modelId},
+        #{modelName},
+        now(),
+        #{description},
+        #{location},
+        #{userId},
+        0)
+    </insert>
 
 </mapper>
