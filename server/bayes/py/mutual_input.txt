@@ -1,0 +1,2 @@
+['gender', 'NationalITy', 'Level', 'SectionID', 'Semester', 'Relation',  'ParentAnsweringSurvey', 'ParentschoolSatisfaction','StudentAbsenceDays', 'Class']
+[('Level', 'Class'), ('Class', 'Relation'), ('Class', 'ParentschoolSatisfaction'), ('Class', 'ParentAnsweringSurvey'), ('gender', 'StudentAbsenceDays'), ('StudentAbsenceDays', 'Class'), ('NationalITy', 'Semester'), ('SectionID', 'Level'), ('Relation', 'NationalITy'), ('ParentschoolSatisfaction', 'ParentAnsweringSurvey'), ('ParentschoolSatisfaction', 'Relation')]

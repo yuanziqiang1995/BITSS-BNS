@@ -5,7 +5,7 @@ import numpy as np
 from pgmpy.estimators import BayesianEstimator
 from pgmpy.models import BayesianModel
 from pgmpy.estimators import HillClimbSearch, BicScore
-from pgmpy.estimators import K2Score, BDeuScore
+from pgmpy.estimators import K2Score, BdeuScore
 import matplotlib.pyplot as plt
 from sklearn import metrics as mr
 
@@ -37,7 +37,7 @@ class OptBayes:
         # plt.show()
         k2 = K2Score(data).score(G)
         bic = BicScore(data).score(G)
-        bdeu = BDeuScore(data).score(G)
+        bdeu = BdeuScore(data).score(G)
         print(k2,",",bic,",",bdeu)
 
         est = HillClimbSearch(data, scoring_method=K2Score(data))
@@ -55,17 +55,14 @@ class OptBayes:
         for edge in model_edges:
             node1 = edge[0]
             node2 = edge[1]
-            if not (nx.has_path(G, node1, node2) or nx.has_path(G, node2, node1)):
-                G_copy.add_edge(node1,node2)
-                if G_copy.number_of_selfloops() == 0:
+            if not nx.has_path(G, node2, node1):
+                if not G.has_edge(node1, node2):
                     this = (node1, node2)
                     # this = '('+node1+','+node2+')'
                     add.append(this)
                     x = data[node1]
                     mut = mr.mutual_info_score(data[node1],data[node2])
                     add_mut.append(mut)
-                else:
-                    G_copy.remove_edge(node1,node2)
         seq = list(zip(add_mut, add))
         seq = sorted(seq, key=lambda s: s[0], reverse=True)
         alpha = 0.015
@@ -122,6 +119,25 @@ class OptBayes:
                 f.write('\n')
                 print(str(j[1]) + "," + str(j[0]))
                 # print(j[0])
+            print('cpt')
+            estimator = BayesianEstimator(G, data)
+            for i in G.nodes:
+                cpd = estimator.estimate_cpd(i, prior_type="K2")
+                nodeName = i
+                values = dict(data[i].value_counts())
+                valueNum = len(values)
+                CPT = np.transpose(cpd.values)
+                # CPT = cpd.values
+                sequence = cpd.variables[1::]
+                card = []
+                for x in sequence:
+                    s = len(dict(data[x].value_counts()))
+                    card.append(s)
+                output = nodeName + '\t' + str(valueNum) + '\t' + str(CPT.tolist()) + '\t' + str(sequence) + '\t' + str(
+                    card)
+                print(output)
+                f.write('\n')
+                f.write(output)
 
 
 if __name__ == "__main__":
