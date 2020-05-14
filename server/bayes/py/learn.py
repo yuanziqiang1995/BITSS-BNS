@@ -22,20 +22,23 @@ class LearnBayes:
         data = pd.read_csv(file2)
 
         G = nx.DiGraph()
+        for i in range(int(len(edges) / 2)):
+            G.add_edge(edges[2 * i], edges[2 * i + 1])
+
         est = HillClimbSearch(data, scoring_method=BicScore(data))
         model = est.estimate()
-        G.add_edges_from(model.edges())
+        G_ = nx.DiGraph()
+        G_.add_edges_from(model.edges())
 
+        for i,j in G_.edges():
+            if i not in G.nodes() or j not in G.nodes():
+                G.add_edge(i, j)
+            elif not nx.has_path(G, j, i):
+                G.add_edge(i,j)
 
-        for i in range(int(len(edges) / 2)):
-            G_ = G.copy()
-            G_.add_edge(edges[2 * i], edges[2 * i + 1])
-            if G_.number_of_selfloops == 0:
-                G.add_edge(edges[2 * i], edges[2 * i + 1])
-
-        G_ = BayesianModel()
-        G_.add_edges_from(G.edges)
-        G = G_
+        new_model = BayesianModel()
+        new_model.add_edges_from(G.edges)
+        G = new_model.copy()
 
 
         # N = G.number_of_nodes()
