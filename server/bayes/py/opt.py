@@ -93,51 +93,50 @@ class OptBayes:
                 if delete[0][0] > add[0][0]:
                     delete = []
 
-        with open('opt_output.txt', 'w') as f:
-            f.write('k2 bic bdeu\n')
-            f.write(str(k2))
-            f.write(' ')
-            f.write(str(bic))
-            f.write(' ')
-            f.write(str(bdeu))
-            f.write('\nadd\n')
-            print('add')
-            for i in add:
-                f.write(str(i[1]))
-                print(str(i[1])+","+str(i[0]))
-                # print(i[0])
-                f.write('\n')
-                f.write(str(i[0]))
-                f.write('\n')
+        print('add')
+        for i in add:
+            print(str(i[1]) + "," + str(i[0]))
 
-            f.write('delete\n')
-            print('delete')
-            for j in delete:
-                f.write(str(j[1]))
-                f.write('\n')
-                f.write(str(j[0]))
-                f.write('\n')
-                print(str(j[1]) + "," + str(j[0]))
-                # print(j[0])
-            print('cpt')
-            estimator = BayesianEstimator(G, data)
-            for i in G.nodes:
-                cpd = estimator.estimate_cpd(i, prior_type="K2")
-                nodeName = i
-                values = dict(data[i].value_counts())
-                valueNum = len(values)
-                CPT = np.transpose(cpd.values)
-                # CPT = cpd.values
-                sequence = cpd.variables[1::]
-                card = []
-                for x in sequence:
-                    s = len(dict(data[x].value_counts()))
-                    card.append(s)
-                output = nodeName + '\t' + str(valueNum) + '\t' + str(CPT.tolist()) + '\t' + str(sequence) + '\t' + str(
-                    card)
-                print(output)
-                f.write('\n')
-                f.write(output)
+        print('delete')
+        for j in delete:
+            print(str(j[1]) + "," + str(j[0]))
+            # print(j[0])
+
+        print('cpt')
+        estimator = BayesianEstimator(G, data)
+        for i in G.nodes:
+            cpd = estimator.estimate_cpd(i, prior_type="K2")
+            nodeName = i
+            values = dict(data[i].value_counts())
+            valueNum = len(values)
+            CPT = np.transpose(cpd.values)
+            # CPT = cpd.values
+            sequence = cpd.variables[1::]
+            card = []
+            for x in sequence:
+                s = len(dict(data[x].value_counts()))
+                card.append(s)
+            output = nodeName + '\t' + str(valueNum) + '\t' + str(CPT.tolist()) + '\t' + str(sequence) + '\t' + str(
+                card)
+            print(output)
+
+        print('mutual')
+        output1 = []
+        for i in range(int(len(edges) / 2)):
+            mut = mr.mutual_info_score(data[edges[2 * i]], data[edges[2 * i + 1]])
+            output1.append(mut)
+        output2 = {}
+        for node1 in G.nodes():
+            d = {}
+            for node2 in G.nodes():
+                if node1 == node2:
+                    continue
+                mut = mr.mutual_info_score(data[node1], data[node2])
+
+                d[node2] = mut
+            output2[node1] = d
+        print(output1)
+        print(output2)
 
 
 if __name__ == "__main__":
