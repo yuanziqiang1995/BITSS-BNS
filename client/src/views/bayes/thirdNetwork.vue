@@ -40,31 +40,43 @@ export default {
     }
   },
   methods: {
-    reset(){
-      this.myDiagram.model = new go.GraphLinksModel(
-        [],
-        []
-      );
-    },
     modelChanged(model) {
-      console.log(model)
       let nodeDataArray = model.node.map(x => {
         return {
           key: x.nodeName,
-          text: x.nodeName
+          text: x.nodeName,
+          mutual: x.mutual
         };
       });
-      let linkDataArray = model.link.map(x=>{
-        return {
-          from: x.sourceId,
-          to: x.targetId,
-          label: x.label
+      let linkDataArray = model.link;
+      let maxv = 0.0
+      let minv = 1.0
+      for(let i of linkDataArray){
+        if(i.mutual){
+        if(i.mutual > maxv){
+          maxv = i.mutual
         }
-      });
+        if(i.mutual < minv){
+          minv = i.mutual
+        }
+        }
+      }
+      for(let i of linkDataArray){
+        console.log(i.mutual,i.color)
+        if(i.mutual && !i.color){
+        let mutual = (i.mutual - minv)/(maxv - minv)
+        let v = (1- 1 / ((1-mutual) * (1-mutual) + 1))*2 * 200
+        // i.width = 10*v + 1
+        i.color = `rgb(${v},${v},${v})`
+        // console.log(mutual)
+        }
+        // i.color = 'red'
+      }
       this.myDiagram.model = new go.GraphLinksModel(
         nodeDataArray,
         linkDataArray
       );
+       
     },
     getModel() {
       return {
@@ -72,8 +84,7 @@ export default {
           return {
             nodeId: x.key,
             nodeName: x.text,
-            valueNum: x.valueNum,
-            value: x.value
+            mutual: x.mutual
           };
         }),
         link: this.myDiagram.model.linkDataArray
@@ -89,19 +100,18 @@ export default {
         this.id, // create a Diagram for the DIV HTML element
         {
           // allow double-click in background to create a new node
-            "clickCreatingTool.archetypeNodeData": { text: "Node", color: "white" },
+          //   "clickCreatingTool.archetypeNodeData": { text: "Node", color: "white" },
           // allow Ctrl-G to call groupSelection()
           "commandHandler.archetypeGroupData": {
             text: "Group",
             isGroup: true,
             color: "blue"
           },
-        
-          isReadOnly: this.readOnly,
+        allowDelete:false,
           // "grid.visible":true,
           // enable undo & redo
           "validCycle":go.Diagram.CycleNotDirected,
-          "undoManager.isEnabled": true,
+          "undoManager.isEnabled": !this.readOnly,
           "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom
         }
       );
@@ -348,7 +358,7 @@ export default {
           toLinkable: true,
           toLinkableSelfNode: true,
           toLinkableDuplicates: true
-        }),
+        },new go.Binding("fill","color")),
         MAKE(
           go.TextBlock,
           {
@@ -356,7 +366,7 @@ export default {
             stroke: "#000",
             margin: 10, // make some extra space for the shape around the text
             isMultiline: false, // don't allow newlines in text
-            editable: true // allow in-place editing by user
+            editable: false // allow in-place editing by user
           },
           new go.Binding("text", "text").makeTwoWay()
         ), // the label shows the node data's text
@@ -441,7 +451,7 @@ export default {
               editable: true,
               margin: 0
             },
-            new go.Binding("text", "label").makeTwoWay()
+            new go.Binding("text", "text").makeTwoWay()
           )
         ),
         {
@@ -593,11 +603,39 @@ export default {
       if (this.treeLayout) {
         this.myDiagram.layout = MAKE(go.TreeLayout);
       }
-       this.myDiagram.addDiagramListener("ChangedSelection",(e,obj) => {
-         this.$emit('selection-changed',this.myDiagram.selection.first().data)
-      })
-       this.myDiagram.addDiagramListener("TextEdited",(e,obj) => {
-         this.$emit('selection-changed',this.myDiagram.selection.first().data)
+      this.myDiagram.addDiagramListener("ChangedSelection",(e,obj) => {
+        let data = this.myDiagram.selection.first().data
+        console.log(this.myDiagram.model.nodeDataArray)
+        if (data.hasOwnProperty("from")){
+          for(let i of this.model.node){
+            console.log(i)
+            let d = this.myDiagram.model.findNodeDataForKey(i.nodeName);
+            console.log(d)
+            this.myDiagram.model.setDataProperty(d, 'color', '#E6F7FF');
+          }
+        } else {
+          let mutual = data.mutual
+          let maxv = 0.0
+          let minv = 1.0
+          for(let i in mutual){
+            if(mutual[i] > maxv){
+              maxv = mutual[i]
+            }
+            if(mutual[i] < minv){
+              minv = mutual[i]
+            }
+          }
+          this.myDiagram.model.setDataProperty(data, 'color', '#E6F7FF');
+          for(let i in mutual){
+             let d = this.myDiagram.model.findNodeDataForKey(i);
+            console.log(d)
+            let v = (mutual[i] - minv)/(maxv - minv)
+            let color = 'rgb('+ (255 * (1  -v) + 64*v)+','+ (255*(1 - v) + 159*v)+',255)'
+            this.myDiagram.model.setDataProperty(d, 'color', color);
+          }
+          // this.myDiagram.model.setDataProperty(data, 'color', 'purple');
+        }
+        //  this.$emit('selection-changed',this.myDiagram.selection.first().data)
       })
       // Create the Diagram's Model:
       this.modelChanged(this.model);

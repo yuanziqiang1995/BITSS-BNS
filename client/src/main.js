@@ -33,6 +33,7 @@ Vue.prototype.$request = {
   get(url) { return axios.get('/myapi/' + url) },
   post(url, data) { 
     let param = new FormData()
+    console.log(data)
   for (let i in data) {
     param.append(i, data[i])
   }

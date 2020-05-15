@@ -1,10 +1,10 @@
 <template>
   <thirdLayout>
-    <mynetwork id="ccc" slot="left" :treeLayout="true" :model="thirdModel" ref="thirdNetwork"></mynetwork>
+    <thirdNetwork id="ccc" slot="left" :treeLayout="true" :model="thirdModel" ref="thirdNetwork"></thirdNetwork>
     <div slot="buttons" style="z-index:1000;">
       <el-button-group>
         <el-button type="primary" style="z-index:1000;" size="small" @click="applySuggest">使用全部建议</el-button>
-        <el-button type="primary" style="z-index:1000;" size="small" @click="submitNetwork">评估网络</el-button>
+        <el-button type="primary" style="z-index:1000;" size="small" @click="submitNetwork" :loading='judging'>评估网络</el-button>
       </el-button-group>
     </div>
 
@@ -92,7 +92,7 @@
 <script>
 import echarts from "echarts";
 import thirdLayout from "./thirdLayout";
-import mynetwork from "./mynetwork";
+import thirdNetwork from "./thirdNetwork";
 import CellMap from "@/components/visual/CellMap";
 // import {mapState} from 'vuex'
 
@@ -100,11 +100,12 @@ export default {
   name: "third",
   components: {
     thirdLayout,
-    mynetwork,
+    thirdNetwork,
     CellMap
   },
   data() {
     return {
+      judging: false,
       namedCpt: [],
       values: [
         [0.4, 0.1, 0.2],
@@ -176,8 +177,8 @@ export default {
     },
     nameIdMap: {
       type: Object,
-      default () {
-        return {}
+      default() {
+        return {};
       }
     },
     idMap: {
@@ -205,13 +206,16 @@ export default {
     },
     submitNetwork() {
       let links = this.$refs.thirdNetwork.getModel().link;
-      let link2 = links.filter(x => x.color !== "green");
+      let link2 = links.filter(x => x.color !== "#00FF7F");
+      let that = this
+      this.judging = true
+
       this.$request
         .post("/bayes/network/opt", {
           datasetId: this.$route.query.datasetId,
           edges: link2.reduce((a, b) => {
-            a.push(this.idMap[b.sourceId].nodeName);
-            a.push(this.idMap[b.targetId].nodeName);
+            a.push(b.from);
+            a.push(b.to);
             return a;
           }, []),
           nodes: this.nodeInfo.map(x => {
@@ -220,9 +224,17 @@ export default {
         })
         .then(res => {
           console.log(res);
+          console.log(that.nameIdMap)
           let r = res.data.data;
           let info = r[0].split(",");
-          let tempModel = JSON.parse(JSON.stringify(this.network.secondModel));
+          let tempModel = {
+            linkList:link2.map(x => {
+              return {
+                sourceId: x.from,
+                targetId: x.to
+              }
+            })
+          }
           tempModel.K2 = (+info[0]).toFixed(3);
           tempModel.Bic = (+info[1]).toFixed(3);
           tempModel.Bdeu = (+info[2]).toFixed(3);
@@ -238,6 +250,10 @@ export default {
             adds.push(r[index]);
           }
           for (; index < size; index++) {
+            if (r[index] === "cpt") {
+              index++;
+              break;
+            }
             deletes.push(r[index]);
           }
           tempModel.add = adds.map(x => {
@@ -250,8 +266,8 @@ export default {
                 "]"
             );
             return {
-              sourceId: this.network.nameIdMap[t[0]],
-              targetId: this.network.nameIdMap[t[1]],
+              sourceId: t[0],
+              targetId: t[1],
               mutualInf: (+t[2]).toFixed(3)
             };
           });
@@ -264,39 +280,52 @@ export default {
               .replace(/\)/g, "")
               .split(",");
             return {
-              sourceId: this.network.nameIdMap[t[0]],
-              targetId: this.network.nameIdMap[t[1]],
+              sourceId: t[0],
+              targetId: t[1],
               mutualInf: (+t[2]).toFixed(3)
             };
           });
+          let cpts = [];
+          let nodeList = [];
+          for (; index < size; index++) {
+            if (r[index] === "mutual") {
+              index++;
+              break;
+            }
+            cpts.push(r[index]);
+          }
+          for (let i of cpts) {
+            let t = i.split("\t");
+            let sequence = JSON.parse(t[3].replace(/'/g, '"'))
+            let stringCPT = t[2].replace(/"/g, "");
+            let cpt = JSON.parse(stringCPT);
+            if (sequence.length === 0) {
+              cpt = [cpt];
+            } else {
+              for (let j = 1; j < sequence.length; j++) {
+                cpt = cpt.flatMap(x => x);
+              }
+            }
 
+            nodeList.push({
+              nodeId: t[0],
+              nodeName: t[0],
+              valueNum: +t[1],
+              CPT: cpt,
+              sequence,
+              stringCPT
+            });
+          }
+          tempModel.nodeList = nodeList;
           let time = new Date();
-
+          console.log(tempModel,this.models)
           tempModel.time =
             time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
-          this.network.thirdModels.push(tempModel);
-          that.waiting = 0;
-          that.activeStep = 2;
-          that.currentHelpTab = "c" + that.activeStep;
+          this.models.push(tempModel);
+          this.judging = false
         });
 
-      this.$axios
-        .post("/network/optimize", {
-          datasetId: this.$route.query.datasetId,
-          linkList: link2
-        })
-        .then(res => {
-          res.data.data.link = link2.map(x => {
-            return {
-              sourceId: x.from,
-              targetId: x.to
-            };
-          });
-          let time = new Date();
-          res.data.data.time =
-            time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
-          this.models.push(JSON.parse(JSON.stringify(res.data.data)));
-        });
+     
     },
     applySuggest() {
       let tempModel = this.$refs.thirdNetwork.getModel();
@@ -311,7 +340,7 @@ export default {
           }
         }
         if (flag) {
-          if (j.color === "green") {
+          if (j.color === "#00FF7F") {
             flag = false;
           }
         }
@@ -345,8 +374,8 @@ export default {
         return {
           sourceId: x.sourceId,
           targetId: x.targetId,
-          source: this.idMap[x.sourceId].nodeName,
-          target: this.idMap[x.targetId].nodeName,
+          source: x.sourceId,
+          target: x.targetId,
           mutualInf: x.mutualInf
         };
       });
@@ -354,15 +383,16 @@ export default {
         return {
           sourceId: x.sourceId,
           targetId: x.targetId,
-          source: this.idMap[x.sourceId].nodeName,
-          target: this.idMap[x.targetId].nodeName,
+          source: x.sourceId,
+          target: x.targetId,
           mutualInf: x.mutualInf
         };
       });
       link = link.map(i => {
         return {
           from: i.sourceId,
-          to: i.targetId
+          to: i.targetId,
+          mutual: i.mutual
         };
       });
       for (let i of deleteList) {
@@ -376,7 +406,7 @@ export default {
         link.push({
           from: i.sourceId,
           to: i.targetId,
-          color: "green",
+          color: "#00FF7F",
           dash: [3]
         });
       }
@@ -391,11 +421,12 @@ export default {
       this.bdeu = currentModel.Bdeu;
       this.nodeList = currentModel.nodeList;
       this.addList = currentModel.add.map(x => {
+        console.log(x.sourceId,this.idMap)
         return {
           sourceId: x.sourceId,
           targetId: x.targetId,
-          source: this.idMap[x.sourceId].nodeName,
-          target: this.idMap[x.targetId].nodeName,
+          source: x.sourceId,
+          target: x.targetId,
           mutualInf: x.mutualInf
         };
       });
@@ -403,13 +434,12 @@ export default {
         return {
           sourceId: x.sourceId,
           targetId: x.targetId,
-          source: this.idMap[x.sourceId].nodeName,
-          target: this.idMap[x.targetId].nodeName,
+          source: x.sourceId,
+          target: x.targetId,
           mutualInf: x.mutualInf
         };
       });
       this.thirdModel = this.computeModel(currentModel);
-      console.log(this.thirdModel);
     }
   },
   computed: {
@@ -445,7 +475,6 @@ export default {
         this.currentValues = [];
       }
       let v = this.variables[to];
-      console.log(v);
       for (let i of this.nodeList) {
         if (i.nodeId === v.id) {
           let parent = i.sequence;
@@ -475,7 +504,6 @@ export default {
             namedCpt.push(temp);
           }
           this.namedCpt = namedCpt;
-          console.log(this.namedCpt);
           break;
         }
       }

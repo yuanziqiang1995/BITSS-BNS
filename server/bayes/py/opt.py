@@ -5,7 +5,7 @@ import numpy as np
 from pgmpy.estimators import BayesianEstimator
 from pgmpy.models import BayesianModel
 from pgmpy.estimators import HillClimbSearch, BicScore
-from pgmpy.estimators import K2Score, BdeuScore
+from pgmpy.estimators import K2Score, BDeuScore
 import matplotlib.pyplot as plt
 from sklearn import metrics as mr
 
@@ -37,7 +37,7 @@ class OptBayes:
         # plt.show()
         k2 = K2Score(data).score(G)
         bic = BicScore(data).score(G)
-        bdeu = BdeuScore(data).score(G)
+        bdeu = BDeuScore(data).score(G)
         print(k2,",",bic,",",bdeu)
 
         est = HillClimbSearch(data, scoring_method=K2Score(data))

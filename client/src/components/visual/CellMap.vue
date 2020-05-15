@@ -47,7 +47,7 @@
         <div v-html="item.info"></div>
         <div
           slot="reference"
-          :style="{width,display:'inline-block',paddingTop:width,backgroundColor:'rgb('+ (255 * (1  -item.value) + 64*item.value)+','+ (255*(1 - item.value) + 159*item.value)+',255)'}"
+          :style="{width,display:'inline-block',paddingTop:width,backgroundColor:'rgb('+ (248 * (1  -item.value) + 64*item.value)+','+ (248*(1 - item.value) + 159*item.value)+','+(248*(1 - item.value) + 255*item.value)+')'}"
         ></div>
       </el-popover>
     </div>

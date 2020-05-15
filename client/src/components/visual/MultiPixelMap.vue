@@ -30,14 +30,18 @@
      {"x":3,"y":0,"h":1,"w":8,"p":[0.98,0.46,0.8700352116998193,0.4585151456853811,0.49024103132914343,0.5238624284876143,0.4686784205851229,0.9981796808576386],"vx":[-1,0,1,2,3,4,5,6],"vy":[-1]},
      {"x":3,"y":1,"h":2,"w":8,"p":[0.33,0.6598340284803363,0.6289109420156767,0.279444254183552,0.25815351522723673,0.15210284452727252,0.6802530040792112,0.1376027669404234,0.8163229664317908,0.42691023579914855,0.6966902091687881,0.8953315290412642,0.9295414363013959,0.13440825541794532,0.7514116837448552,0.9622686004210925],"vx":[-1,0,1,2,3,4,5,6],"vy":[-1,0]},
      {"x":3,"y":2,"h":3,"w":8,"p":[0.29,0.29503428472935345,0.48301130346952337,0.06712283243373429,0.01525395057942891,0.6871342347609934,0.367950790674473,0.48383039702859376,0.3978743852153499,0.9470814375467094,0.9913117189101142,0.4413495656503419,0.03846234310594543,0.28572585434002207,0.4790497097981148,0.800965070044684,0.2046481984662265,0.30715629076882434,0.2031396994185819,0.8902440784841701,0.986529728126031,0.08799398407602843,0.8900885627797188,0.36428363998827074],"vx":[-1,0,1,2,3,4,5,6],"vy":[-1,0,1]}]
-     
+
   -->
   <div class="echart" style="width:100%;height:100%;" :id="id"></div>
 </template>
 <script>
 import echarts from "echarts";
 // import {mapState} from 'vuex'
-
+const colors = [
+  // 'rgb(255,255,0)','rgb(227,207,87)','rgb(255,153,18)','rgb(124,252,0)',
+  // 'rgb(34,139,34)']
+  '#000','#888','#444','#aaa','#666'
+]
 //[变量名，位置，值,x,y,h,w,cellWidth,deltaX,cellHeight,deltaY,p]
 
 //[x,y,w,h,cellWidth,deltaX,cellHeight,deltaY,p]
@@ -77,14 +81,14 @@ export default {
             show: false
           }
         },
-        visualMap: {
+         visualMap: {
           min: 0,
           max: 1,
           calculable: true,
           orient: "horizontal",
           left: "center",
           bottom: "15%",
-          color: [ "#409eff","#ffffff"],
+          color: ["#f8f8f8", "#409eff"],
           show: false
         },
         series: [
@@ -94,8 +98,7 @@ export default {
             map: this.id,
             aspectScale: 1,
             data: []
-          }
-        ]
+          }]
       }
     };
   },
@@ -136,15 +139,23 @@ export default {
   mounted() {
     this.chart = this.$echarts.init(document.getElementById(this.id));
     let geo = [];
+    let geo2 = [];
     let data = [];
+    // let data2 = [];
     this.formatBorder(geo, data);
     this.formatValue(geo,data);
     this.$echarts.registerMap(this.id, {
       type: "FeatureCollection",
       features: geo
     });
+    // this.$echarts.registerMap(this.id + "_2", {
+      // type: "FeatureCollection",
+      // features: geo2
+    // });
     this.option.series[0].data = data;
-    console.log(geo, data);
+    // this.option.series[1].data = data2;
+    // console.log(geo, data1,data2);
+    console.log(this.option)
     this.chart.setOption(this.option);
 
     window.addEventListener("resize", () => {
@@ -199,17 +210,18 @@ export default {
                 type: "Polygon",
                 coordinates: [
                   [
-                    [x,- y],
-                    [x,- y - h],
-                    [x + w,- y - h],
-                    [x + w,- y]
+                    [x, y + 0.3],
+                    [x, y + h],
+                    [x + w, y + h],
+                    [x + w, y + 0.3]
                   ]
                 ]
               }
             });
             data.push({
               name: index + "",
-              value: top[i].values[k].p,
+              value: k / item.values.length * 0.8 + 0.2,
+
               info:
                 "概率：" +
                 top[i].values[k].p +
@@ -242,17 +254,17 @@ export default {
                 type: "Polygon",
                 coordinates: [
                   [
-                    [x, -y],
-                    [x, -y - h],
-                    [x + w, -y - h],
-                    [x + w, -y]
+                    [x, y],
+                    [x, y + h - 0.3],
+                    [x + w, y + h - 0.3],
+                    [x + w, y]
                   ]
                 ]
               }
             });
             data.push({
               name: index + "",
-              value: bottom[i].values[k].p,
+              value: k / item.values.length * 0.8 + 0.2,
               info:
                 "概率：" +
                 bottom[i].values[k].p +
@@ -266,6 +278,7 @@ export default {
         cnt *= item.values.length;
       }
       cnt = 1;
+      let ox = offset;
       for (let i = 0; i < left.length; i++) {
         let item = left[i];
         let cellN = ylength / cnt / item.values.length;
@@ -273,7 +286,7 @@ export default {
         for (let j = 0; j < cnt; j++) {
           for (let k = 0; k < item.values.length; k++) {
             let x = (i - left.length) * (1 + deltaX);
-            let y = (j * item.values.length + k) * (h + deltaY);
+            let y = ox - (j * item.values.length + k) * (h + deltaY);
             let w = 1;
 
             geo.push({
@@ -285,17 +298,17 @@ export default {
                 type: "Polygon",
                 coordinates: [
                   [
-                    [x,- y],
-                    [x,- y - h],
-                    [x + w,- y - h],
-                    [x + w,- y]
+                    [x, y],
+                    [x, y - h],
+                    [x + w - 0.3, y - h],
+                    [x + w -0.3, y]
                   ]
                 ]
               }
             });
             data.push({
               name: index + "",
-              value: left[i].values[k].p,
+              value: k / item.values.length * 0.8 + 0.2,
               info:
                 "概率：" +
                 left[i].values[k].p +
@@ -308,6 +321,7 @@ export default {
         }
         cnt *= item.values.length;
       }
+
       offset = xlength * (1 + deltaX);
       for (let i = 0; i < right.length; i++) {
         let item = right[i];
@@ -316,7 +330,7 @@ export default {
         for (let j = 0; j < cnt; j++) {
           for (let k = 0; k < item.values.length; k++) {
             let x = offset + (right.length - 1 - i) * (1 + deltaX);
-            let y = (j * item.values.length + k) * (h + deltaY);
+            let y = ox - (j * item.values.length + k) * (h + deltaY);
             let w = 1;
 
             geo.push({
@@ -328,17 +342,17 @@ export default {
                 type: "Polygon",
                 coordinates: [
                   [
-                    [x, -y],
-                    [x, -y - h],
-                    [x + w, -y - h],
-                    [x + w, -y]
+                    [x + 0.3, y],
+                    [x + 0.3, y - h],
+                    [x + w, y - h],
+                    [x + w, y]
                   ]
                 ]
               }
             });
             data.push({
               name: index + "",
-              value: right[i].values[k].p,
+              value: k / item.values.length * 0.8 + 0.2,
               info:
                 "概率：" +
                 right[i].values[k].p +
@@ -373,6 +387,7 @@ export default {
         ylength *= i.values.length;
       }
       let index = -1;
+       let offset = ylength * (1 + 0.1);
       for (let i = 0; i < map.length; i++) {
         for (let j = 0; j < map[0].length; j++) {
           --index;
@@ -403,13 +418,17 @@ export default {
             idx %= k.values.length;
             info = info + "<br>" + k.name + "：" + k.values[idx].name
           }
+          let p = map[i][j];
           data.push({
             name: index + "",
             value: map[i][j],
-            info: info
+            info: info,
+            // itemStyle: {
+                // areaColor : `rgb(${p*64 + (1-p)*255},${p*159 + (1-p)*255},255)`
+            // }
           })
           let x = j *(1+0.1)
-          let y = i*(1+0.1)
+          let y = offset - i*(1+0.1)
           geo.push({
               type: "Feature",
               properties: {
@@ -419,10 +438,10 @@ export default {
                 type: "Polygon",
                 coordinates: [
                   [
-                    [x,- y],
-                    [x,- y - 1],
-                    [x + 1, -y - 1],
-                    [x + 1, -y]
+                    [x, y],
+                    [x, y - 1],
+                    [x + 1, y - 1],
+                    [x + 1, y]
                   ]
                 ]
               }

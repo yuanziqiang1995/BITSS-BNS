@@ -3,7 +3,9 @@ import numpy as np
 from pgmpy.models import BayesianModel
 from pgmpy.factors.discrete import TabularCPD
 from pgmpy.inference import BeliefPropagation, VariableElimination
-
+import importlib
+# importlib.r1eload(sys)
+# sys.setDefaultEncoding("utf-8")
 
 class Inference:
     def getnode(self, str):
@@ -60,7 +62,7 @@ class Inference:
             replace("'", '').replace('\n', '').replace('{', '').replace('}', '').replace( ':',',').split(',')
         n = len(str0)
         dic = {}
-        for i in range(int((n - 1) / 2)):
+        for i in range(int((n) / 2)):
             dic[str0[2 * i]] = int(str0[2 * i + 1])
         return  dic
 
@@ -113,21 +115,14 @@ class Inference:
             for node in G.nodes():
                 if node not in evidence2:
                     namelist = [node]
-                    result += node + '\t'
-                    phi_query = inference.query(variables=namelist, evidence=evidence2).values
+                    result += node + ' '
+                    phi_query = inference.query(variables=namelist, evidence=evidence2,show_progress=False).values
                     result += str(phi_query) + '\n'
             print(result)
-
-            with open('inference_output.txt', 'w') as f:
-                f.write(str(result))
 
 
 
 if __name__ == "__main__":
-    file1 = ""
-    if len(sys.argv) != 2:
-        file1 = "inference_input.txt"
-    else:
-        file1 = sys.argv[1]
+    file1 = sys.argv[1]
     b = Inference()
     b.inf(file1)

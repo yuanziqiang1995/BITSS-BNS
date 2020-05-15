@@ -77,7 +77,7 @@ export default {
           orient: "horizontal",
           left: "center",
           bottom: "15%",
-          color: ["#ffffff", "#409eff"],
+          color: ["#f8f8f8", "#409eff"],
           show: false
         },
         series: [
@@ -121,27 +121,26 @@ export default {
       this.chart.setOption(this.option);
     },
     formatValue() {
-      let vals = [];
+      let valss = [];
       let mapdata = [];
       let values = this.param.values;
       let condition = this.param.condition;
       let noncondition = this.param.noncondition;
       let index = 0;
-      for (let i = 0; i < values.length; i++) {
-        let vali = values[i];
-        for (let j = 0; j < vali.length; j++) {
-          if(condition[i].name === noncondition[j].name){
+      let iii = 0;
+      for(let i =0;i<condition.length;i++){
+        for(let j=0;j<noncondition.length;j++){
+           if(condition[i].name === noncondition[j].name){
             continue;
           }
-          let valj = vali[j];
-          let w = valj.length;
-          let h = valj[0].length;
+          let vals = values[iii++]
+          let w = vals[0].length;
+          let h = vals.length;
           let size = w > h ? w : h;
           let width = 0.9 / size;
-          console.log(width)
-          for (let k = 0; k < valj.length; k++) {
-            let valk = valj[k];
-            for (let z = 0; z < valk.length; z++) {
+           for (let z = 0; z < vals.length; z++) {
+            let valk = vals[z];
+            for (let k = 0; k < valk.length; k++) {
               mapdata.push(
                 {
                   type: "Feature",
@@ -153,37 +152,101 @@ export default {
                     coordinates: [
                       [
                         [
-                          j + 0.5 - (w / 2 - k) * width,
-                          -i - 0.5 + (h / 2 - z) * width
+                           -(-j - 0.5 + (w / 2 - k) * width),
+                          -(i + 0.5 - (h / 2 - z) * width)
+                         
                         ],
                         [
-                          j + 0.5 - (w / 2 - k - 1) * width,
-                          -i - 0.5 + (h / 2 - z) * width
+                         
+                          -(-j - 0.5 + (w / 2 - k) * width),
+                           -(i + 0.5 - (h / 2 - z - 1) * width)
                         ],
                         [
-                          j + 0.5 - (w / 2 - k - 1) * width,
-                          -i - 0.5 + (h / 2 - z - 1) * width
+                         
+                          -( -j - 0.5 + (w / 2 - k - 1) * width),
+                           -( i + 0.5 - (h / 2 - z - 1) * width)
                         ],
                         [
-                          j + 0.5 - (w / 2 - k) * width,
-                          -i - 0.5 + (h / 2 - z - 1) * width
+                         
+                           -(-j - 0.5 + (w / 2 - k - 1) * width),
+                            -(i + 0.5 - (h / 2 - z) * width)
                         ]
                       ]
                     ]
                   }
                 }
               );
-              vals.push({
+              console.log(1)
+              valss.push({
                 name: index + "",
-                value: valk[z],
-                 info: '概率：' +valk[z] + '<br>' + 
-                    condition[i].name + "：" + condition[i].values[k] + '<br>'
-                    + noncondition[j].name + "：" + noncondition[j].values[z]
+                value: valk[k],
+                 info: '概率：' +valk[k] + '<br>' + 
+                    condition[i].name + "(条件)：" + condition[i].values[z] + '<br>'
+                    + noncondition[j].name + "：" + noncondition[j].values[k]
               });
             }
           }
         }
       }
+      // for (let i = 0; i < values.length; i++) {
+      //   let vali = values[i];
+      //   for (let j = 0; j < vali.length; j++) {
+      //     if(condition[i].name === noncondition[j].name){
+      //       continue;
+      //     }
+      //     let valj = vali[j];
+      //     let w = valj.length;
+      //     let h = valj[0].length;
+      //     let size = w > h ? w : h;
+      //     let width = 0.9 / size;
+      //     console.log(width)
+      //     for (let k = 0; k < valj.length; k++) {
+      //       let valk = valj[k];
+      //       for (let z = 0; z < valk.length; z++) {
+      //         mapdata.push(
+      //           {
+      //             type: "Feature",
+      //             properties: {
+      //               name: ++index + ""
+      //             },
+      //             geometry: {
+      //               type: "Polygon",
+      //               coordinates: [
+      //                 [
+      //                   [
+      //                     j + 0.5 - (w / 2 - k) * width,
+      //                     -i - 0.5 + (h / 2 - z) * width
+      //                   ],
+      //                   [
+      //                     j + 0.5 - (w / 2 - k - 1) * width,
+      //                     -i - 0.5 + (h / 2 - z) * width
+      //                   ],
+      //                   [
+      //                     j + 0.5 - (w / 2 - k - 1) * width,
+      //                     -i - 0.5 + (h / 2 - z - 1) * width
+      //                   ],
+      //                   [
+      //                     j + 0.5 - (w / 2 - k) * width,
+      //                     -i - 0.5 + (h / 2 - z - 1) * width
+      //                   ]
+      //                 ]
+      //               ]
+      //             }
+      //           }
+      //         );
+      //         vals.push({
+      //           name: index + "",
+      //           value: valk[z],
+      //            info: '概率：' +valk[z] + '<br>' + 
+      //               condition[i].name + "：" + condition[i].values[k] + '<br>'
+      //               + noncondition[j].name + "：" + noncondition[j].values[z]
+      //         });
+      //       }
+      //     }
+      //   }
+      // }
+      console.log(mapdata)
+      console.log(valss)
       console.log( {
         type: "FeatureCollection",
         features: mapdata
@@ -192,7 +255,7 @@ export default {
         type: "FeatureCollection",
         features: mapdata
       });
-      return vals;
+      return valss;
     }
     // showLoading() {
     //   this.chart.showLoading({

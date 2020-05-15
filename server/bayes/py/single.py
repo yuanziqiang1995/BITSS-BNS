@@ -118,7 +118,7 @@ class SingleVis:
                     for i in range(cnum):
                         l = {}
                         l[cname] = i
-                        phi_query = inference.query(variables=namelist, evidence=l).values
+                        phi_query = inference.query(variables=namelist, evidence=l,show_progress=False).values
                         this.append(phi_query.tolist())
                     result.append(this)
             print(result)

@@ -97,7 +97,7 @@ public class NetworkController {
             edges = "";
         }
         if (nodes == null) {
-            edges = "";
+            nodes = "";
         }
         DataSets dataSets = dataSetsDao.selectById(datasetId);
         String tempFileName = IdGen.uuid();
@@ -121,6 +121,41 @@ public class NetworkController {
             f.delete();
         }
     }
+
+    @PostMapping("inference")
+    public Result inference(@RequestParam String nodes,@RequestParam String edges,@RequestParam String evidence){
+        if (edges == null){
+            edges = "";
+        }
+        if (nodes == null) {
+            nodes = "";
+        }
+        String[] ss = nodes.split("\t");
+        String tempFileName = IdGen.uuid();
+        File f = new File(tempFileName);
+        try (FileWriter output = new FileWriter(f);) {
+            for (String s : ss) {
+                output.write(s);
+                output.write('\n');
+            }
+            output.write("\n");
+            output.write(edges);
+            output.write("\n\n");
+            output.write(evidence);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String[] args = new String[]{"python", home + "/../py/inference.py", tempFileName};
+        try {
+            return ResultGenerator.ok(runPython(args));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultGenerator.error("");
+        } finally {
+            f.delete();
+        }
+    }
+
 
     @PostMapping("single")
     public Result single(@RequestBody SingleVO singleVO){

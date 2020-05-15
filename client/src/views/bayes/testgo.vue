@@ -56,6 +56,7 @@ export default {
           let data = inferences[x.nodeId]
           let node = this.idMap[x.nodeId]
            let properties = [];
+           console.log(node)
           for(let i =0;i < data.probability.length;i++){
             let name = node.value[i].name
             let p = data.probability[i];
@@ -98,8 +99,10 @@ export default {
             }
           }
           let properties = [];
+          console.log(x)
           for (let i = 0; i < cpt.length; i++) {
             let res = {};
+            
             let y = cpt[i];
             for (let j = 0; j < y.length; j++) {
               res["tooltip" + (j + 1)] =
@@ -112,8 +115,8 @@ export default {
                 infos[i];
               res["width" + (j + 1)] = 20;
               res["height" + (j+1)] = 20;
-              res["color" + (j + 1)] = `rgb(${255 * (1 - y[j]) +
-                64 * y[j]},${255 * (1 - y[j]) + 159 * y[j]},255)`;
+              res["color" + (j + 1)] = `rgb(${248 * (1 - y[j]) +
+                64 * y[j]},${248 * (1 - y[j]) + 159 * y[j]},${248 * (1 - y[j]) + 255 * y[j]})`;
             }
             properties.push(res);
           }
@@ -676,12 +679,12 @@ export default {
             fill: "#fff",
             stroke: "#33A7EB", // node边框
             strokeWidth: 3,
-            fromLinkable: true,
-            fromLinkableSelfNode: true,
-            fromLinkableDuplicates: true,
-            toLinkable: true,
-            toLinkableSelfNode: true,
-            toLinkableDuplicates: true,
+            fromLinkable: false,
+            fromLinkableSelfNode: false,
+            fromLinkableDuplicates: false,
+            toLinkable: false,
+            toLinkableSelfNode: false,
+            toLinkableDuplicates: false,
             portId: ""
           }),
 

@@ -44,14 +44,16 @@ export default {
       let nodeDataArray = model.node.map(x => {
         return {
           key: x.nodeId,
-          text: x.nodeName
+          text: x.nodeName,
+          mutual: x.mutual
         };
       });
-      let linkDataArray = model.link;
+      let linkDataArray = model.link
       this.myDiagram.model = new go.GraphLinksModel(
         nodeDataArray,
         linkDataArray
       );
+       
     },
     getModel() {
       return {
@@ -306,7 +308,7 @@ export default {
       this.myDiagram.nodeTemplate = MAKE(
         go.Node,
         "Auto",
-        { locationSpot: go.Spot.Center },
+        { locationSpot: go.Spot.Center},
         new go.Binding("location", "loc", go.Point.parse).makeTwoWay(
           go.Point.stringify
         ),
@@ -328,13 +330,13 @@ export default {
           portId: "",
           cursor: "pointer", // the Shape is the port, not the whole Node
           // allow all kinds of links from and to this port
-          fromLinkable: true,
-          fromLinkableSelfNode: true,
-          fromLinkableDuplicates: true,
-          toLinkable: true,
-          toLinkableSelfNode: true,
-          toLinkableDuplicates: true
-        }),
+              fromLinkable: !this.readOnly,
+            fromLinkableSelfNode: false,
+            fromLinkableDuplicates: false,
+            toLinkable: !this.readOnly,
+            toLinkableSelfNode: false,
+            toLinkableDuplicates: false,
+        },new go.Binding("fill","color")),
         MAKE(
           go.TextBlock,
           {
@@ -579,6 +581,7 @@ export default {
       if (this.treeLayout) {
         this.myDiagram.layout = MAKE(go.TreeLayout);
       }
+    
       // Create the Diagram's Model:
       this.modelChanged(this.model);
     }

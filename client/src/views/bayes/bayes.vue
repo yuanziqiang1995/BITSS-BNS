@@ -124,7 +124,7 @@ export default {
   },
   data() {
     return {
-      steps: ["添加先验知识", "生成初始网络", "网络优化","网络推理"],
+      steps: ["添加先验知识", "生成初始网络", "网络优化", "网络推理"],
       activeStep: 0,
       waiting: 0,
       helpVisible: false,
@@ -175,7 +175,7 @@ export default {
               flag = true;
               let infoSplit = info.split("\t");
               let o = {
-                nodeId: infoSplit[0],
+                nodeId: infoSplit[1],
                 nodeName: infoSplit[1],
                 valueNum: +infoSplit[2],
                 value: vals.map(x => {
@@ -199,7 +199,7 @@ export default {
           idMap[i.nodeId] = i;
           nameIdMap[i.nodeName] = i.nodeId;
         }
-        this.network.nameIdMap = nameIdMap;
+        // this.network.nameIdMap = nameIdMap;
         this.network.idMap = idMap;
         loading.close();
       });
@@ -216,8 +216,8 @@ export default {
             .post("/bayes/network/learn", {
               datasetId: this.$route.query.datasetId,
               edges: tempModel.link.reduce((a, b) => {
-                a.push(this.network.idMap[b.from].nodeName);
-                a.push(this.network.idMap[b.to].nodeName);
+                a.push(b.from);
+                a.push(b.to);
                 return a;
               }, [])
             })
@@ -233,10 +233,8 @@ export default {
 
               for (let i = 1; i < d.length; i++) {
                 let t = d[i].split("\t");
-                let sequence = JSON.parse(t[3].replace(/'/g, '"')).map(x => {
-                  return this.network.nameIdMap[x];
-                });
-                let stringCPT = t[2].replace(/"/g, "")
+                let sequence = JSON.parse(t[3].replace(/'/g, '"'));
+                let stringCPT = t[2].replace(/"/g, "");
                 let cpt = JSON.parse(stringCPT);
                 if (sequence.length === 0) {
                   cpt = [cpt];
@@ -247,7 +245,7 @@ export default {
                 }
 
                 nodeList.push({
-                  nodeId: this.network.nameIdMap[t[0]],
+                  nodeId: t[0],
                   nodeName: t[0],
                   valueNum: +t[1],
                   CPT: cpt,
@@ -259,8 +257,8 @@ export default {
               for (let i = 0; i < edges.length; i += 2) {
                 linkList.push({
                   linkId: i,
-                  sourceId: this.network.nameIdMap[edges[i]],
-                  targetId: this.network.nameIdMap[edges[i + 1]]
+                  sourceId: edges[i],
+                  targetId: edges[i + 1]
                 });
               }
               that.waiting = 0;
@@ -280,8 +278,8 @@ export default {
             .post("/bayes/network/opt", {
               datasetId: this.$route.query.datasetId,
               edges: links.reduce((a, b) => {
-                a.push(this.network.idMap[b.sourceId].nodeName);
-                a.push(this.network.idMap[b.targetId].nodeName);
+                a.push(b.sourceId);
+                a.push(b.targetId);
                 return a;
               }, []),
               nodes: this.network.secondModel.nodeList.map(x => {
@@ -310,8 +308,51 @@ export default {
                 adds.push(r[index]);
               }
               for (; index < size; index++) {
+                if (r[index] === "cpt") {
+                  index++;
+                  break;
+                }
                 deletes.push(r[index]);
               }
+              let cpts = [];
+              let nodeList = [];
+              for (; index < size; index++) {
+                if (r[index] === "mutual") {
+                  index++;
+                  break;
+                }
+                cpts.push(r[index]);
+              }
+              let mutuals = JSON.parse(r[index]);
+              for (let i = 0; i < mutuals.length; i++) {
+                tempModel.linkList[i].mutual = mutuals[i];
+              }
+              let nodeMutual = JSON.parse(r[index + 1].replace(/'/g, '"'));
+
+              for (let i of cpts) {
+                let t = i.split("\t");
+                let sequence = JSON.parse(t[3].replace(/'/g, '"'));
+                let stringCPT = t[2].replace(/"/g, "");
+                let cpt = JSON.parse(stringCPT);
+                if (sequence.length === 0) {
+                  cpt = [cpt];
+                } else {
+                  for (let j = 1; j < sequence.length; j++) {
+                    cpt = cpt.flatMap(x => x);
+                  }
+                }
+
+                nodeList.push({
+                  nodeId: t[0],
+                  nodeName: t[0],
+                  valueNum: +t[1],
+                  mutual: nodeMutual[t[0]],
+                  CPT: cpt,
+                  sequence,
+                  stringCPT
+                });
+              }
+              tempModel.nodeList = nodeList;
               tempModel.add = adds.map(x => {
                 let t = JSON.parse(
                   "[" +
@@ -322,8 +363,8 @@ export default {
                     "]"
                 );
                 return {
-                  sourceId: this.network.nameIdMap[t[0]],
-                  targetId: this.network.nameIdMap[t[1]],
+                  sourceId: t[0],
+                  targetId: t[1],
                   mutualInf: (+t[2]).toFixed(3)
                 };
               });
@@ -336,12 +377,12 @@ export default {
                   .replace(/\)/g, "")
                   .split(",");
                 return {
-                  sourceId: this.network.nameIdMap[t[0]],
-                  targetId: this.network.nameIdMap[t[1]],
+                  sourceId: t[0],
+                  targetId: t[1],
                   mutualInf: (+t[2]).toFixed(3)
                 };
               });
-
+              console.log(tempModel, "model");
               let time = new Date();
 
               tempModel.time =
@@ -360,7 +401,6 @@ export default {
         case 2: {
           that.network.fourthModel =
             that.network.thirdModels[that.network.thirdModels.length - 1];
-            console.log(that.network.fourthModel)
           that.activeStep = 3;
           that.waiting = 0;
           that.currentHelpTab = "c" + that.activeStep;
@@ -403,7 +443,7 @@ export default {
           }
         }
         that.currentHelpTab = "c" + that.activeStep;
-      }, 1000);
+      }, 0);
     }
   },
   computed: {

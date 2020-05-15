@@ -60,7 +60,7 @@
                   v-for="(item,index) in idMap[item].value"
                   :key="index"
                   :label="item.name"
-                  :value="item.name"
+                  :value="index"
                 ></el-option>
               </el-select>
             </el-form-item>
@@ -157,15 +157,9 @@
       :visible.sync="twoVisible"
       :before-close="handleClose"
     >
-        <el-form ref="form" :model="form" label-width="120px">
+      <el-form ref="form" :model="form" label-width="120px">
         <el-form-item label="条件变量">
-          <el-select
-            v-model="needV"
-            style="width:100%"
-            disabled
-            multiple
-            placeholder="请选择"
-          >
+          <el-select v-model="needV" style="width:100%" disabled multiple placeholder="请选择">
             <el-option
               v-for="(item,index) in nodeInfo"
               :key="index"
@@ -175,13 +169,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="非条件变量">
-          <el-select
-            v-model="judgeV"
-            style="width:100%"
-            disabled
-            multiple
-            placeholder="请选择"
-          >
+          <el-select v-model="judgeV" style="width:100%" disabled multiple placeholder="请选择">
             <el-option
               v-for="(item,index) in nodeInfo"
               :key="index"
@@ -311,18 +299,91 @@ export default {
   },
   methods: {
     doInference() {
+      let evidence = [];
+      let nodeList = [];
+      for (let i of this.evidenceList) {
+        if (this.evidence[i]) {
+          evidence.push(i);
+          evidence.push(this.evidence[i]);
+          let temp = this.idMap[i].value.map(x => 0.0);
+          temp[this.evidence[i]] = 1.0;
+          nodeList.push({
+            nodeId: i,
+            nodeName: i,
+            probability: temp
+          });
+        }
+      }
+      if (evidence.length === 0) {
+        const h = this.$createElement;
+        this.$message({
+          message: h("p", null, [h("span", null, "你没有设置证据")])
+        });
+        return;
+      }
       this.inferenceLoading = true;
-      this.$axios
-        .post("/network/inference", {
-          datasetId: this.$route.query.datasetId,
-          evidence: []
+      this.$request
+        .post("/bayes/network/inference", {
+          evidence: evidence.join(","),
+          edges: this.model.linkList
+            .reduce((a, b) => {
+              a.push(b.sourceId);
+              a.push(b.targetId);
+              return a;
+            }, [])
+            .join(","),
+          nodes: this.model.nodeList.reduce((a, b) => {
+            let item = this.idMap[b.nodeId];
+            let temp = "";
+            temp +=
+              b.nodeId +
+              "\t" +
+              b.valueNum +
+              "\t" +
+              b.stringCPT +
+              "\t" +
+              b.sequence.join(",") +
+              "\t";
+            let first = true;
+            for (let i of b.sequence) {
+              if (first) {
+                first = false;
+              } else {
+                temp += ",";
+              }
+              temp += this.idMap[i].valueNum;
+            }
+            temp += "\t";
+            a += temp;
+            return a;
+          }, "")
         })
         .then(res => {
-          console.log(res);
-          let list = res.data.data.nodeList;
-          this.inference = res.data.data.nodeList;
+          for (let k = 0; k < res.data.data.length - 1; k++) {
+            let i = res.data.data[k];
+            let d = i
+              .replace(/\[/g, "")
+              .replace(/\]/g, "")
+              .trim()
+              .split(" ")
+              .filter(x => {
+                return x !== "";
+              });
+            let p = [];
+            for (let j = 1; j < d.length; j++) {
+              p.push(+d[j]);
+            }
+            nodeList.push({
+              nodeId: d[0],
+              nodeName: d[0],
+              probability: p
+            });
+          }
+          console.log(nodeList);
+          let list = nodeList;
+          this.inference = nodeList;
           this.inferenceData = this.inference;
-          let labels = list.map(x => x.nodeName);
+          // let labels = list.map(x => x.nodeName);
           let len = list.reduce((a, b) => {
             return b.probability.length > a ? b.probability.length : a;
           }, 0);
@@ -330,30 +391,31 @@ export default {
           for (let i = 0; i < len; i++) {
             series.push([]);
           }
+          // console.log(this.inference)
 
-          for (let i of list) {
-            let node = this.idMap[i.nodeId];
-            for (let j = 0; j < len; j++) {
-              if (j >= i.probability.length) {
-                series[j].push({
-                  value: 0,
-                  info: ""
-                });
-              } else {
-                series[j].push({
-                  value: i.probability[j],
-                  info: `<br>${node.value[j].name}\t：${i.probability[j]}`
-                });
-              }
-            }
-          }
+          // for (let i of list) {
+          //   let node = this.idMap[i.nodeId];
+          //   for (let j = 0; j < len; j++) {
+          //     if (j >= i.probability.length) {
+          //       series[j].push({
+          //         value: 0,
+          //         info: ""
+          //       });
+          //     } else {
+          //       series[j].push({
+          //         value: i.probability[j],
+          //         info: `<br>${node.value[j].name}\t：${i.probability[j]}`
+          //       });
+          //     }
+          //   }
+          // }
           // this.barParam = {
           //   labels: labels,
           //   series
           // }
-          console.log(series);
+          // console.log(series);
 
-          console.log(labels, len);
+          // console.log(labels, len);
           // this.inferenceVisible = true
           this.inferenceLoading = false;
         });
@@ -362,6 +424,7 @@ export default {
       let type = this.visibleType;
       let condition = ["1", "2"];
       let noncondition = ["3"];
+            console.log(this.idMap)
       if (type === 0) {
         this.visLoading = true;
 
@@ -404,20 +467,21 @@ export default {
             }
             data.push(temp);
             this.twoParam = {
-              values: data,
+              values: JSON.parse(res.data.data),
               condition: condition.map(x => {
                 return {
                   name: x,
-                  values: this.idMap[this.nameIdMap[x]].value.map(y => y.name)
+                  values: this.idMap[x].value.map(y => y.name)
                 };
               }),
               noncondition: nonCondition.map(x => {
                 return {
                   name: x,
-                  values: this.idMap[this.nameIdMap[x]].value.map(y => y.name)
+                  values: this.idMap[x].value.map(y => y.name)
                 };
               })
             };
+            console.log(this.twoParam)
             this.twoVisible = true;
             this.visLoading = false;
           });
