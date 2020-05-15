@@ -196,11 +196,19 @@ class MultiVis:
             value1 = self.changeSequence(x1, query1.variables, query1.values, N1, M1)
             value2 = self.changeSequence(x2, query2.variables, query2.values, N2, M2)
 
-            repeat = int(N1*M1/N2/M2)
-            value2 = np.repeat(value2, repeat).reshape(N1, M1)
-            result = np.true_divide(value1, value2)
-            result = result.tolist()
+            # repeat = int(N1*M1/N2/M2)
+            aug_x = int(N1 / N2)
+            aug_y = int(M1 / M2)
+            aug = np.ones((N1, M1))
+            for i in range(0, aug.shape[0]):
+                for j in range(0, aug.shape[1]):
+                    aug[i, j] = value2[int(i / aug_x), int(j / aug_y)]
 
+
+            # value2 = np.repeat(value2, repeat).reshape(N1, M1)
+            # result = np.true_divide(value1, value2)
+            result = np.true_divide(value1, aug)
+            result = result.tolist()
 
             print(result)
             with open('multi_output.txt', 'w') as f:

@@ -51,10 +51,10 @@ Class
 
 NationalITy,Semester,SectionID,Level,Relation,NationalITy,Relation,ParentschoolSatisfaction,ParentschoolSatisfaction,ParentAnsweringSurvey,StudentAbsenceDays,Class,Class,Relation,Class,ParentschoolSatisfaction,Class,ParentAnsweringSurvey,Class,gender
 
-NationalITy,Semester
+gender
+
+Semester
 
 Relation
 
-Level,SectionID
-
-ParentschoolSatisfaction
+ParentAnsweringSurvey
