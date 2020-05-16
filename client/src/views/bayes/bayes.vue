@@ -132,8 +132,8 @@ export default {
       network: {
         nodeInfo: [],
         secondModel: {
-          node: [],
-          link: []
+          nodeList: [],
+          linkList: []
         },
         firstModel: {},
         thirdModels: [],
@@ -155,6 +155,50 @@ export default {
       target: document.querySelector("#bayesContainer")
     });
     let datasetId = this.$route.query.datasetId;
+    let modelId = this.$route.query.modelId;
+    if(modelId){
+      this.$request
+        .get("/bayes/static/discrete/loadModel?modelId=" + modelId)
+        .then(res => {
+          this.activeStep = 1;
+          this.currentHelpTab = "c" + 1;
+          let temp = JSON.parse(res.data.data);
+          this.datasetId = temp.datasetId;
+          this.network.secondModel = {
+            linkList: temp.linkList,
+            nodeList: temp.nodeList.map(x => {
+              let ttt = []
+              for(let i =0;i<x.values.length;i++){
+                ttt.push({
+                  id: x.values[i],
+                  name: x.values[i],
+                  probability: x.probability[i],
+                  count: x.counts[i]
+                })
+              }
+              this.network.nodeInfo.push({
+                nodeId: x.id,
+                nodeName: x.nodeName,
+                valueNum: +x.valueNum,
+                value: ttt
+              });
+              return {
+                nodeId: x.id,
+                nodeName: x.nodeName,
+                sequence: x.sequence,
+                CPT: x.cPT,
+                stringCPT: x.stringCPT,
+                valueNum: +x.valueNum
+              };
+            })
+          };
+          loading.close()
+          console.log(this.network.idMap,this.network.secondModel)
+          for (let i of this.network.nodeInfo) {
+            this.network.idMap[i.nodeId] = i;
+          }
+        });
+    } else {
     this.$request
       .get("/bayes/network/init?datasetId=" + datasetId)
       .then(res => {
@@ -203,6 +247,7 @@ export default {
         this.network.idMap = idMap;
         loading.close();
       });
+    }
   },
   methods: {
     nextStep() {

@@ -109,6 +109,7 @@ export default {
   },
   methods: {
     modelChanged(model) {
+      console.log(model)
       this.secondModel = {
         link: model.linkList.map(x => {
           return {
@@ -159,7 +160,7 @@ export default {
           let cpt = i.CPT;
           let nodes = parent.map(x => this.idMap[x]);
           let infos = [""];
-          if (nodes !== null) { 
+          if (nodes !== null) {
             for (let j of nodes) {
               let newInfos = [];
               for (let k of infos) {

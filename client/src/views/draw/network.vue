@@ -1,16 +1,16 @@
 <template>
-<!-- 
+  <!--
   TODO
   克隆编辑
   推理
--->
+  -->
   <div class="app-container calendar-list-container">
     <div>
       <!-- <div style="margin-bottom: 10px;margin-top: 0px">
       <el-button  size="small" style="" @click="downloadInBatches()" type="primary" icon="el-icon-download">批量下载</el-button>
       </div>-->
-       <el-table
-      size='mini'
+      <el-table
+        size="mini"
         :data="list"
         v-loading="listLoading"
         element-loading-text="给我一点时间"
@@ -41,11 +41,10 @@
               @click="handleEdit(scope.row)"
               style="margin-left:10px"
             >编辑</el-button>
-            <el-button size="small" type="primary" @click="handleEdit(scope.row)">复制</el-button>
             <el-button
               size="small"
               type="primary"
-              @click="handleEdit(scope.row)"
+              @click="handleInference(scope.row)"
               style="margin-left:10px"
             >推理</el-button>
             <el-button
@@ -158,7 +157,7 @@ export default {
         description: "",
         id: ""
       },
-      list:[],
+      list: [],
       total: 0,
       listLoading: true,
       listQuery: {
@@ -295,7 +294,7 @@ export default {
     },
 
     getList() {
-      //TODO 
+      //TODO
       this.listLoading = false;
       //   fetchDataList(this.listQuery).then(response => {
       //     this.list = response.data.list
@@ -345,16 +344,27 @@ export default {
     // },
 
     handleEdit(row) {
-      if(row.datasetId){
-
+      if (row.datasetId) {
+        this.$router.push({ path: "/draw/useData", query: {
+          datasetId: row.datasetId,
+          modelId: row.modelId
+        } });
       } else {
-         this.$router.push({ path: '/draw/index', query: { modelId: row.modelId }})
+        this.$router.push({
+          path: "/draw/index",
+          query: { modelId: row.modelId }
+        });
       }
       //跳转到编辑网络
     },
 
     handleInference(row) {
       //跳转到网络推理
+
+      this.$router.push({
+        path: "/draw/inference",
+        query: { modelId: row.modelId }
+      });
     },
 
     handleDownload(row) {

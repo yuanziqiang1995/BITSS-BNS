@@ -88,7 +88,7 @@ export default {
           orient: "horizontal",
           left: "center",
           bottom: "15%",
-          color: ["#f8f8f8", "#409eff"],
+          color: ["#409eff","#f8f8f8"],
           show: false
         },
         series: [
@@ -155,7 +155,7 @@ export default {
     this.option.series[0].data = data;
     // this.option.series[1].data = data2;
     // console.log(geo, data1,data2);
-    console.log(this.option)
+    console.log(this.param)
     this.chart.setOption(this.option);
 
     window.addEventListener("resize", () => {
@@ -223,9 +223,6 @@ export default {
               value: k / item.values.length * 0.8 + 0.2,
 
               info:
-                "概率：" +
-                top[i].values[k].p +
-                "<br>" +
                 top[i].name +
                 "：" +
                 top[i].values[k].name
@@ -266,9 +263,6 @@ export default {
               name: index + "",
               value: k / item.values.length * 0.8 + 0.2,
               info:
-                "概率：" +
-                bottom[i].values[k].p +
-                "<br>" +
                 bottom[i].name +
                 "：" +
                 bottom[i].values[k].name
@@ -310,9 +304,6 @@ export default {
               name: index + "",
               value: k / item.values.length * 0.8 + 0.2,
               info:
-                "概率：" +
-                left[i].values[k].p +
-                "<br>" +
                 left[i].name +
                 "：" +
                 left[i].values[k].name
@@ -354,9 +345,6 @@ export default {
               name: index + "",
               value: k / item.values.length * 0.8 + 0.2,
               info:
-                "概率：" +
-                right[i].values[k].p +
-                "<br>" +
                 right[i].name +
                 "：" +
                 right[i].values[k].name

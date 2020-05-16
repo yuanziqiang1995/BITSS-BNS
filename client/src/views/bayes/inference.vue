@@ -1,7 +1,7 @@
 <template>
-  <div class="fit">
+  <div class="fit" style="height:calc(100vh - 50px)">
     <fourthLayout>
-      <testgo :inference="inference" id="ddd" slot="left" :model="model" :idMap="idMap"></testgo>
+      <testgo :inference="inference" id="ddd2" slot="left" :model="model" :idMap="idMap"></testgo>
 
       <div slot="right" style="display:flex;flex-direction:column;height:100%;">
         <div
@@ -90,8 +90,7 @@
             v-if="inference"
             @click="inference = null"
           >显示条件概率表</el-button>
-          <el-button type="primary" style="z-index:1000;" size="small" @click='onSave'>保存网络</el-button>
-
+          <el-button type="primary" style="z-index:1000;" size="small" @click="onEdit">编辑</el-button>
           <el-button
             type="primary"
             style="z-index:1000;"
@@ -244,8 +243,12 @@
         <el-button type="primary" @click="twoVisible = false">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="多变量条件概率可视化(滚轮缩放，左键拖拽像素图)" :visible.sync="multiVisible" :before-close="handleClose">
-      <el-form ref="form" :model="form" size='mini' label-width="120px">
+    <el-dialog
+      title="多变量条件概率可视化(滚轮缩放，左键拖拽像素图)"
+      :visible.sync="multiVisible"
+      :before-close="handleClose"
+    >
+      <el-form ref="form" :model="form" size="mini" label-width="120px">
         <el-form-item label="条件变量(左)">
           <el-select v-model="needVL" style="width:100%" disabled multiple placeholder="请选择">
             <el-option
@@ -256,7 +259,7 @@
             ></el-option>
           </el-select>
         </el-form-item>
-         <el-form-item label="条件变量(上)">
+        <el-form-item label="条件变量(上)">
           <el-select v-model="needVT" style="width:100%" disabled multiple placeholder="请选择">
             <el-option
               v-for="(item,index) in nodeInfo"
@@ -288,7 +291,7 @@
         </el-form-item>
       </el-form>
 
-      <MultiPixelMap id="multiPixelMap" style='height:300px;' :param="multiParam" />
+      <MultiPixelMap id="multiPixelMap" style="height:300px;" :param="multiParam" />
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="multiVisible = false">确 定</el-button>
       </span>
@@ -299,27 +302,6 @@
         <el-button type="primary" @click="doInference">确 定</el-button>
       </span>
     </el-dialog>
-     <el-dialog title="保存网络" :visible.sync="dialogFormVisible" v-dialogDrag>
-        <el-form ref="dataForm" :model="uploadData" label-position="right" label-width="110px">
-          <el-form-item label="节点数 :">{{uploadData.nodeCount}}</el-form-item>
-          <el-form-item label="连线数 :">{{uploadData.linkCount}}</el-form-item>
-          <el-form-item label="网络名称 :">
-            <el-input v-model="uploadData.name" style="max-width:400px"></el-input>
-          </el-form-item>
-          <el-form-item label="网络描述 :">
-            <el-input
-              v-model="uploadData.description"
-              type="textarea"
-              :rows="3"
-              style="max-width:400px"
-              maxlength="250"
-            ></el-input>
-          </el-form-item>
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button type="primary" :loading="saveLoading" @click="handleSave()">提交保存</el-button>
-        </div>
-      </el-dialog>
   </div>
 </template>
 <script>
@@ -332,7 +314,7 @@ import Bar from "@/components/echarts/Bar";
 // import {mapState} from 'vuex'
 
 export default {
-  name: "fourth",
+  name: "inference",
   components: {
     fourthLayout,
     mynetwork,
@@ -341,35 +323,56 @@ export default {
     MultiPixelMap,
     Bar
   },
-  props: {
-    nodeInfo: {
-      type: Array,
-      default() {
-        return [];
-      }
-    },
-    nameIdMap: {
-      type: Object,
-      default() {
-        return {};
-      }
-    },
-    idMap: {
-      type: Object,
-      default() {
-        return {};
-      }
-    },
-    model: {
-      type: Object,
-      default: {
-        node: [],
-        link: []
-      }
+  mounted() {
+    this.networkId = this.$route.query.modelId;
+    if (this.networkId) {
+      this.pageLoading = true;
+      this.$request
+        .get("/bayes/static/discrete/loadModel?modelId=" + this.networkId)
+        .then(res => {
+          let temp = JSON.parse(res.data.data);
+          this.datasetId = temp.datasetId;
+          this.model = {
+            linkList: temp.linkList,
+            nodeList: temp.nodeList.map(x => {
+              this.nodeInfo.push({
+                nodeId: x.id,
+                nodeName: x.nodeName,
+                valueNum: +x.valueNum,
+                value: x.values.map(y => {
+                  return {
+                    id: y,
+                    name: y
+                  };
+                })
+              });
+              return {
+                nodeId: x.id,
+                nodeName: x.nodeName,
+                sequence: x.sequence,
+                CPT: x.cPT,
+                stringCPT: x.stringCPT,
+                valueNum: +x.valueNum
+              };
+            })
+          };
+          this.pageLoading = false;
+          console.log(this.model, this.nodeInfo, this.idMap);
+          for (let i of this.nodeInfo) {
+            this.idMap[i.nodeId] = i;
+          }
+        });
     }
   },
   data() {
     return {
+      datasetId: null,
+      nodeInfo: [],
+      idMap: {},
+      model: {
+        nodeList: [],
+        linkList: []
+      },
       evidenceList: [],
       evidence: {},
       inference: null,
@@ -410,11 +413,8 @@ export default {
       multiParam: {},
       dialogFormVisible: false,
       saveLoading: false,
-      uploadData: {},
+      uploadData: {}
     };
-  },
-  mounted() {
-    console.log(this.nodeInfo);
   },
   watch: {
     currentVariable(to, from) {
@@ -428,36 +428,6 @@ export default {
     }
   },
   methods: {
-    handleSave(){
-      let id = 1;
-      console.log(this.model,this.nodeInfo,this.idMap)
-      let param = {
-        modelId: this.networkId,
-        description: this.uploadData.description,
-        modelName: this.uploadData.name,
-        datasetId: this.$route.query.datasetId,
-        nodeList: this.model.nodeList.map(x => {
-          return {
-            id: x.nodeId,
-            nodeName: x.nodeName,
-            sequence: x.sequence,
-            counts:this.idMap[x.nodeId].value.map(x => x.count),
-            probability: this.idMap[x.nodeId].value.map(x => x.probability),
-            CPT: x.CPT,
-            stringCPT: x.stringCPT,
-            valueNum: x.valueNum,
-            values: this.idMap[x.nodeId].value.map(x => x.name)
-          }
-        }),
-        linkList: this.model.linkList
-      };
-      this.saveLoading = true;
-      this.$request.postJSON("/bayes/static/discrete/save", param).then(res => {
-        this.networkId = res.data.data;
-        this.saveLoading = false;
-        this.dialogFormVisible = false;
-      });
-    },
     getDate() {
       let d = new Date();
       return (
@@ -473,15 +443,6 @@ export default {
         ":" +
         d.getSeconds()
       );
-    },
-    onSave() {
-      this.dialogFormVisible = true;
-      if (!this.uploadData.name) {
-        this.uploadData.name = "网络-" + this.getDate();
-      }
-      console.log(this.model)
-      this.uploadData.nodeCount = this.model.nodeList.length;
-      this.uploadData.linkCount = this.model.linkList.length;
     },
     doInference() {
       let evidence = [];
@@ -757,6 +718,22 @@ export default {
             this.multiVisible = true;
             this.visLoading = false;
           });
+      }
+    },
+    onEdit() {
+      if (this.datasetId) {
+        this.$router.push({
+          path: "/draw/useData",
+          query: {
+            datasetId: this.datasetId,
+            modelId: this.$route.query.modelId
+          }
+        });
+      } else {
+        this.$router.push({
+          path: "/draw/index",
+          query: { modelId: this.$route.query.modelId }
+        });
       }
     },
     handleClose(done) {

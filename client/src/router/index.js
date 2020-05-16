@@ -96,7 +96,7 @@ export const constantRoutes = [
         component: () => import('@/views/draw/dataset'),
         meta: { title: '数据管理', icon: 'table' }
       },
-      
+
     ]
   },
   {
@@ -113,7 +113,7 @@ export const constantRoutes = [
         meta: { title: '画网络图', icon: 'table' },
         hidden: true
       },
-      
+
     ]
   },
   {
@@ -130,7 +130,24 @@ export const constantRoutes = [
         meta: { title: '创建网络', icon: 'table' },
         hidden: true
       },
-      
+
+    ]
+  },
+  {
+    path: '/draw',
+    component: Layout,
+    redirect: '/draw/new',
+    name: 'draw',
+    children: [
+      {
+        path: 'inference',
+        name: 'inference',
+        // component: () => import('@/views/draw/index'),
+        component: () => import('@/views/bayes/inference'),
+        meta: { title: '网络推理', icon: 'table' },
+        hidden: true
+      },
+
     ]
   },
   // 404 page must be placed at the end !!!

@@ -130,6 +130,42 @@ public class NetworkController {
         if (nodes == null) {
             nodes = "";
         }
+        String tempFileName = IdGen.uuid();
+        File f = new File(tempFileName);
+        try (FileWriter output = new FileWriter(f);) {
+            output.write(nodes);
+            output.write("\n");
+            output.write(edges);
+            output.write("\n\n");
+            output.write(evidence);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String[] args = new String[]{"python", home + "/../py/inference.py", tempFileName};
+        try {
+            return ResultGenerator.ok(runPython(args));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultGenerator.error("");
+        } finally {
+            f.delete();
+        }
+    }
+
+    @PostMapping("multi")
+    public Result multi(
+            @RequestParam String nodes,
+            @RequestParam String edges,
+            @RequestParam String top,
+            @RequestParam String left,
+            @RequestParam String right,
+            @RequestParam String bottom){
+        if (edges == null){
+            edges = "";
+        }
+        if (nodes == null) {
+            nodes = "";
+        }
         String[] ss = nodes.split("\t");
         String tempFileName = IdGen.uuid();
         File f = new File(tempFileName);
@@ -141,11 +177,17 @@ public class NetworkController {
             output.write("\n");
             output.write(edges);
             output.write("\n\n");
-            output.write(evidence);
+            output.write(left);
+            output.write("\n\n");
+            output.write(top);
+            output.write("\n\n");
+            output.write(bottom);
+            output.write("\n\n");
+            output.write(right);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String[] args = new String[]{"python", home + "/../py/inference.py", tempFileName};
+        String[] args = new String[]{"python", home + "/../py/multi.py", tempFileName};
         try {
             return ResultGenerator.ok(runPython(args));
         } catch (Exception e) {

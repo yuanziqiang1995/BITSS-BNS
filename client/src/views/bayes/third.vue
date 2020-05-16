@@ -325,7 +325,7 @@ export default {
           this.judging = false
         });
 
-     
+
     },
     applySuggest() {
       let tempModel = this.$refs.thirdNetwork.getModel();
@@ -453,7 +453,7 @@ export default {
             return {
               value: y.name,
               count: y.count,
-              percent: y.probability,
+              percent: y.probability.toFixed(3),
               id: y.id
             };
           })

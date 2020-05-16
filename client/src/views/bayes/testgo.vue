@@ -35,6 +35,9 @@ export default {
     }
   },
   watch:{
+    model(to,from){
+      this.setModel()
+    },
     inference(to,from){
       this.setModel()
     }
@@ -72,7 +75,7 @@ export default {
           // let nodes = parent.map(x => this.idMap[x]);
           // let node = this.idMap[x.nodeId];
           // console.log(node, "node");
-         
+
           return {
             key: x.nodeId,
             name: x.nodeName,
@@ -102,7 +105,7 @@ export default {
           console.log(x)
           for (let i = 0; i < cpt.length; i++) {
             let res = {};
-            
+
             let y = cpt[i];
             for (let j = 0; j < y.length; j++) {
               res["tooltip" + (j + 1)] =

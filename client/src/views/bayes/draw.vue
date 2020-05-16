@@ -73,7 +73,7 @@
           <el-form-item label="cpt">
             <el-input
               v-model="currentNode.cpt"
-              placeholder="二维数组，例如:     
+              placeholder="二维数组，例如:
              [ [0.2,0.4,0.4],
               [0.5,0.3,0.2] ]"
               type="textarea"
@@ -133,7 +133,7 @@ export default {
           this.uploadData.description = temp.description;
           for (let i of temp.nodeList) {
             this.nodeMap[i.id] = {
-              cpt: JSON.stringify(i.cPT),
+              cpt: i.stringCPT,
               valueNum: i.valueNum
             };
           }
@@ -158,7 +158,10 @@ export default {
       model: {},
       pageLoading: false,
       saveLoading: false,
-      uploadData: {},
+      uploadData: {
+        description: "",
+        name: ""
+      },
       dialogFormVisible: false,
       helpVisible: true,
       currentNode: null,
@@ -292,6 +295,13 @@ export default {
         let cpt;
         try {
           cpt = JSON.parse(info.cpt);
+          if(sequence.length === 0){
+            cpt = [cpt]
+          } else {
+            for(let i =0;i<sequence.length - 1;i++){
+              cpt = cpt.flatMap(x=>x)
+            }
+          }
         } catch (e) {
           return {
             code: 0,
@@ -312,18 +322,38 @@ export default {
             };
           }
         }
+        let vs = []
+        for(let i = 0;i<+info.valueNum;i++){
+          vs.push("_"+i)
+        }
         nodeList.push({
-          id: i.nodeId,
+          id: i.nodeName,
+          t: i.nodeId,
           nodeName: i.nodeName,
           valueNum: info.valueNum,
+          stringCPT: info.cpt,
+          values: vs,
           CPT: cpt,
           sequence
         });
       }
+      let idMap = {}
+      for(let i of nodeList){
+        idMap[i.t] = i
+      }
+      for(let i of nodeList){
+        i.sequence = i.sequence.map(x => idMap[x].nodeName)
+      }
       return {
         code: 1,
         nodeList,
-        linkList: model.link
+        linkList: model.link.map(x => {
+          return {
+            from: idMap[x.from].nodeName,
+            to: idMap[x.to].nodeName,
+            label: x.label
+          }
+        })
       };
     },
     openHelpDialog() {
