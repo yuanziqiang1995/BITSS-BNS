@@ -23,7 +23,7 @@ class OptBayes:
         return nodes
 
     def opt(self, file1, file2):
-        f1 = open(file1)
+        f1 = open(file1,encoding="utf8")
         lines = f1.readlines()
         nodes = self.getegdes(lines[0])
         edges = self.getegdes(lines[1])

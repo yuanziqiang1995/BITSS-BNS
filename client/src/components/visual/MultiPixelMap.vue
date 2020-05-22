@@ -52,7 +52,7 @@ export default {
     return {
       option: {
         tooltip: {
-          position: "inside",
+          position: "right",
           formatter: function(params, ticket, callback) {
             return `${params.data.info}`;
           }
@@ -121,8 +121,23 @@ export default {
     }
   },
   watch: {
-    values(to, from) {
-      this.option.series[0].data = this.formatValue();
+    param(to, from) {
+      let geo = [];
+    let geo2 = [];
+    let data = [];
+    // let data2 = [];
+    this.formatBorder(geo, data);
+    this.formatValue(geo,data);
+    this.$echarts.registerMap(this.id, {
+      type: "FeatureCollection",
+      features: geo
+    });
+    // this.$echarts.registerMap(this.id + "_2", {
+      // type: "FeatureCollection",
+      // features: geo2
+    // });
+    this.option.series[0].data = data;
+      // this.option.series[0].data = this.formatValue();
       this.chart.clear();
       this.chart.setOption(this.option);
     },

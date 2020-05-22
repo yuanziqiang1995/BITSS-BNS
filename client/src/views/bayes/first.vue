@@ -5,7 +5,9 @@
       <div
         style="flex-grow:0;color:rgb(144,147,153);cursor:default;font-weight:700"
         class="item"
-      >节点信息</div>
+      >节点信息&emsp;
+      <!-- <el-button size='mini'>总览</el-button> -->
+      </div>
       <div style="flex-grow:1;overflow-y:auto;width:100%;height:0;">
         <el-popover
           placement="left"

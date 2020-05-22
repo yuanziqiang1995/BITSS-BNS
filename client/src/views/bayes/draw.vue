@@ -324,7 +324,7 @@ export default {
         }
         let vs = []
         for(let i = 0;i<+info.valueNum;i++){
-          vs.push("_"+i)
+          vs.push("取值"+i)
         }
         nodeList.push({
           id: i.nodeName,

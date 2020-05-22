@@ -60,7 +60,7 @@ class SingleVis:
 
 
     def learn(self, file1):
-        f1 = open(file1)
+        f1 = open(file1,encoding="utf8")
         lines = f1.readlines()
         i = 0
         G = BayesianModel()

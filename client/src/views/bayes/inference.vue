@@ -23,7 +23,22 @@
         </div>
 
         <div style="padding:15px;width:100%;flex-grow:1;overflow-y:auto">
-          <div style="font-size:14px;margin:5px 0;">选择变量</div>
+          <div style="font-size:14px;margin:5px 0;">选择推理目标</div>
+          <el-select
+            size="small"
+            v-model="targetList"
+            style="width:100%"
+            placeholder="请选择"
+            multiple
+          >
+            <el-option
+              v-for="(item,index) in nodeInfo"
+              :key="index"
+              :label="item.nodeName"
+              :value="item.nodeId"
+            ></el-option>
+          </el-select>
+          <div style="font-size:14px;margin:10px 0 5px 0;">选择证据变量</div>
 
           <el-select
             size="small"
@@ -368,6 +383,7 @@ export default {
     return {
       datasetId: null,
       nodeInfo: [],
+      targetList: [],
       idMap: {},
       model: {
         nodeList: [],
@@ -467,6 +483,8 @@ export default {
         });
         return;
       }
+       let evidenceSet = new Set(this.evidenceList);
+      let targetSet = new Set(this.targetList);
       this.inferenceLoading = true;
       this.$request
         .post("/bayes/network/inference", {
@@ -525,9 +543,25 @@ export default {
               probability: p
             });
           }
-          console.log(nodeList);
+          for (let i of nodeList) {
+            if (evidenceSet.has(i.nodeName)) {
+              i.background = [0xe6, 0xa2, 0x3c];
+              i.borderColor = [0xe6, 0xa2, 0x3c];
+            } else if (targetSet.has(i.nodeName)) {
+              i.background = [240, 230, 140];
+              i.borderColor = [240, 230, 140];
+            } else {
+              i.background = [0xe6, 0xf7, 0xff];
+              i.borderColor = [0x33, 0xa7, 0xeb];
+            }
+          }
+        
           let list = nodeList;
-          this.inference = nodeList;
+          this.inference = {
+            nodeList,
+            evidenceSet,
+            targetSet
+          };
           this.inferenceData = this.inference;
           // let labels = list.map(x => x.nodeName);
           let len = list.reduce((a, b) => {
@@ -621,13 +655,13 @@ export default {
               let temp = "";
               temp +=
                 b.nodeId +
-                "\t" +
+                "\n" +
                 b.valueNum +
-                "\t" +
+                "\n" +
                 b.stringCPT +
-                "\t" +
+                "\n" +
                 b.sequence.join(",") +
-                "\t";
+                "\n";
               let first = true;
               for (let i of b.sequence) {
                 if (first) {
@@ -637,7 +671,7 @@ export default {
                 }
                 temp += this.idMap[i].valueNum;
               }
-              temp += "\t";
+              temp += "\n";
               a += temp;
               return a;
             }, "")

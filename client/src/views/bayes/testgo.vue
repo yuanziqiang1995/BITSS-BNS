@@ -22,7 +22,7 @@ export default {
       }
     },
     inference: {
-      type: Array,
+      type: Object,
       default() {
         return null
       }
@@ -46,10 +46,73 @@ export default {
     this.init();
   },
   methods: {
+    findAllPath(linkMap,from,to,result,useless){
+      /**
+       * 找到from的所有to节点
+       * 如果可以到达则将flag设true
+       * useless中的包含的表示不可达，直接跳过
+       * result中包含表示可达，将flag设true
+       * 
+       * 返回flag 判断是否可达
+       */
+      if(to.has(from)){
+        return true
+      }
+      let m = linkMap[from]
+      let flag = false
+      if(m){
+      m.forEach(n => {
+        let s = JSON.stringify([from,n])
+        
+        if(useless.has(s)){
+          return
+        } 
+        if(result.has(s)){
+          flag = true
+          return
+        }
+        if(this.findAllPath(linkMap,n,to,result,useless)){
+          flag = true
+          result.add(s)
+        } else {
+          useless.add(s)
+        }
+      })
+      }
+      return flag
+    },
     setModel() {
       let nodeDataArray;
+       var linkDataArray = this.model.linkList.map(x => {
+        return {
+          from: x.sourceId,
+          to: x.targetId,
+        };
+      });
       if (this.inference) {
-        let inferences = this.inference.reduce((a,b) => {
+         let result = new Set()
+        let useless = new Set()
+        let to = this.inference.evidenceSet
+        let linkMap = {}
+        this.model.linkList.forEach(x => {
+          if(!linkMap[x.targetId]){
+            linkMap[x.targetId] = new Set()
+          }
+          linkMap[x.targetId].add(x.sourceId)
+        })
+        this.inference.targetSet.forEach(x => {
+          this.findAllPath(linkMap,x,to,result,useless)
+        })
+        let relatedNodes = new Set()
+        linkDataArray.forEach((x)=>{
+          if(result.has(JSON.stringify([x.to,x.from]))){
+            x.color = '#E6A23C'
+            if(!this.inference.targetSet.has(x.from)){
+              relatedNodes.add(x.from)
+            }
+          }
+        })
+        let inferences = this.inference.nodeList.reduce((a,b) => {
           a[b.nodeId] = b
           return a
         },{})
@@ -64,9 +127,11 @@ export default {
             let name = node.value[i].name
             let p = data.probability[i];
             let res ={
-              width1: p * 60,
-              color1: `rgb(${210 * (1 - p) +
-                64 * p},${210 * (1 - p) + 159 * p},255)`,
+              
+              width1: p * 100,
+              color1: `rgb(${230 * (1 - p) +
+                data.borderColor[0] * p},${230 * (1 - p) + data.borderColor[1] * p},
+                ${230 * (1 - p) + data.borderColor[2] * p})`,
               tooltip1: "值：\t" + name + "\n概率：\t" + p,
               height1: 10
             }
@@ -79,6 +144,8 @@ export default {
           return {
             key: x.nodeId,
             name: x.nodeName,
+             background: `rgb(${data.background.join()})`,
+              borderColor: relatedNodes.has(x.nodeId)?'#E6A23C':`rgb(${data.borderColor.join()})`,
             properties
           };
         });
@@ -126,17 +193,18 @@ export default {
           return {
             key: x.nodeId,
             name: x.nodeName,
+           
             properties
           };
         });
       }
+      
+      if(this.inference){
+        
+       
+      }
+     
 
-      var linkDataArray = this.model.linkList.map(x => {
-        return {
-          from: x.sourceId,
-          to: x.targetId
-        };
-      });
 
       this.myDiagram.model = new go.GraphLinksModel(
         nodeDataArray,
@@ -689,7 +757,7 @@ export default {
             toLinkableSelfNode: false,
             toLinkableDuplicates: false,
             portId: ""
-          }),
+          },new go.Binding("stroke","borderColor")),
 
           // 表头样式
           MAKE(
@@ -714,13 +782,14 @@ export default {
                 go.TextBlock,
                 {
                   alignment: go.Spot.Left,
-                  margin: new go.Margin(5, 0, 5, 10),
+                  margin: new go.Margin(5, 10, 5, 10),
                   font: "11pt sans-serif", // 表头字体样式调整
                   isMultiline: false,
                   editable: false
                 },
                 new go.Binding("text", "name").makeTwoWay()
-              )
+              ),
+              new go.Binding("background","background")
             ),
             // properties
             MAKE(
@@ -959,7 +1028,6 @@ export default {
           go.Shape,
           {
             strokeWidth: 2,
-            strokeDashArray: [3, 3],
             stroke: "rgba(0,0,0,0.5)"
           },
           new go.Binding("stroke", "color")
@@ -998,6 +1066,7 @@ export default {
           contextMenu: partContextMenu
         }
       );
+
       // Define the appearance and behavior for Groups:
       function groupInfo(adornment) {
         // takes the tooltip or context menu, not a group node data object
@@ -1131,7 +1200,9 @@ export default {
         )
       );
       // Create the Diagram's Model:
-
+// if (this.treeLayout) {
+        // this.myDiagram.layout = MAKE(go.TreeNetwork);
+      // }
       this.setModel();
     }
   }

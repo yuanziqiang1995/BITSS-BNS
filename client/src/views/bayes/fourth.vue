@@ -23,8 +23,22 @@
         </div>
 
         <div style="padding:15px;width:100%;flex-grow:1;overflow-y:auto">
-          <div style="font-size:14px;margin:5px 0;">选择变量</div>
-
+          <div style="font-size:14px;margin:5px 0;">选择推理目标</div>
+          <el-select
+            size="small"
+            v-model="targetList"
+            style="width:100%"
+            placeholder="请选择"
+            multiple
+          >
+            <el-option
+              v-for="(item,index) in nodeInfo"
+              :key="index"
+              :label="item.nodeName"
+              :value="item.nodeId"
+            ></el-option>
+          </el-select>
+          <div style="font-size:14px;margin:10px 0 5px 0;">选择证据变量</div>
           <el-select
             size="small"
             v-model="evidenceList"
@@ -90,7 +104,7 @@
             v-if="inference"
             @click="inference = null"
           >显示条件概率表</el-button>
-          <el-button type="primary" style="z-index:1000;" size="small" @click='onSave'>保存网络</el-button>
+          <el-button type="primary" style="z-index:1000;" size="small" @click="onSave">保存网络</el-button>
 
           <el-button
             type="primary"
@@ -244,8 +258,12 @@
         <el-button type="primary" @click="twoVisible = false">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="多变量条件概率可视化(滚轮缩放，左键拖拽像素图)" :visible.sync="multiVisible" :before-close="handleClose">
-      <el-form ref="form" :model="form" size='mini' label-width="120px">
+    <el-dialog
+      title="多变量条件概率可视化(滚轮缩放，左键拖拽像素图)"
+      :visible.sync="multiVisible"
+      :before-close="handleClose"
+    >
+      <el-form ref="form" :model="form" size="mini" label-width="120px">
         <el-form-item label="条件变量(左)">
           <el-select v-model="needVL" style="width:100%" disabled multiple placeholder="请选择">
             <el-option
@@ -256,7 +274,7 @@
             ></el-option>
           </el-select>
         </el-form-item>
-         <el-form-item label="条件变量(上)">
+        <el-form-item label="条件变量(上)">
           <el-select v-model="needVT" style="width:100%" disabled multiple placeholder="请选择">
             <el-option
               v-for="(item,index) in nodeInfo"
@@ -288,7 +306,7 @@
         </el-form-item>
       </el-form>
 
-      <MultiPixelMap id="multiPixelMap" style='height:300px;' :param="multiParam" />
+      <MultiPixelMap id="multiPixelMap" style="height:300px;" :param="multiParam" />
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="multiVisible = false">确 定</el-button>
       </span>
@@ -299,27 +317,27 @@
         <el-button type="primary" @click="doInference">确 定</el-button>
       </span>
     </el-dialog>
-     <el-dialog title="保存网络" :visible.sync="dialogFormVisible" v-dialogDrag>
-        <el-form ref="dataForm" :model="uploadData" label-position="right" label-width="110px">
-          <el-form-item label="节点数 :">{{uploadData.nodeCount}}</el-form-item>
-          <el-form-item label="连线数 :">{{uploadData.linkCount}}</el-form-item>
-          <el-form-item label="网络名称 :">
-            <el-input v-model="uploadData.name" style="max-width:400px"></el-input>
-          </el-form-item>
-          <el-form-item label="网络描述 :">
-            <el-input
-              v-model="uploadData.description"
-              type="textarea"
-              :rows="3"
-              style="max-width:400px"
-              maxlength="250"
-            ></el-input>
-          </el-form-item>
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button type="primary" :loading="saveLoading" @click="handleSave()">提交保存</el-button>
-        </div>
-      </el-dialog>
+    <el-dialog title="保存网络" :visible.sync="dialogFormVisible" v-dialogDrag>
+      <el-form ref="dataForm" :model="uploadData" label-position="right" label-width="110px">
+        <el-form-item label="节点数 :">{{uploadData.nodeCount}}</el-form-item>
+        <el-form-item label="连线数 :">{{uploadData.linkCount}}</el-form-item>
+        <el-form-item label="网络名称 :">
+          <el-input v-model="uploadData.name" style="max-width:400px"></el-input>
+        </el-form-item>
+        <el-form-item label="网络描述 :">
+          <el-input
+            v-model="uploadData.description"
+            type="textarea"
+            :rows="3"
+            style="max-width:400px"
+            maxlength="250"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" :loading="saveLoading" @click="handleSave()">提交保存</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -371,6 +389,7 @@ export default {
   data() {
     return {
       evidenceList: [],
+      targetList: [],
       evidence: {},
       inference: null,
       inferenceData: null,
@@ -395,7 +414,7 @@ export default {
         }
       ],
       twoVisible: false,
-      networkId: null,
+      networkId: this.$route.query.modelId,
       currentValues: [],
       currentVariable: null,
       judgeV: [],
@@ -410,11 +429,14 @@ export default {
       multiParam: {},
       dialogFormVisible: false,
       saveLoading: false,
-      uploadData: {},
+      uploadData: {
+        name: '',
+        description: ''
+      }
     };
   },
   mounted() {
-    console.log(this.nodeInfo);
+    console.log(this.networkId);
   },
   watch: {
     currentVariable(to, from) {
@@ -428,9 +450,9 @@ export default {
     }
   },
   methods: {
-    handleSave(){
+    handleSave() {
       let id = 1;
-      console.log(this.model,this.nodeInfo,this.idMap)
+      console.log(this.model, this.nodeInfo, this.idMap);
       let param = {
         modelId: this.networkId,
         description: this.uploadData.description,
@@ -441,13 +463,13 @@ export default {
             id: x.nodeId,
             nodeName: x.nodeName,
             sequence: x.sequence,
-            counts:this.idMap[x.nodeId].value.map(x => x.count),
+            counts: this.idMap[x.nodeId].value.map(x => x.count),
             probability: this.idMap[x.nodeId].value.map(x => x.probability),
             CPT: x.CPT,
             stringCPT: x.stringCPT,
             valueNum: x.valueNum,
             values: this.idMap[x.nodeId].value.map(x => x.name)
-          }
+          };
         }),
         linkList: this.model.linkList
       };
@@ -479,7 +501,6 @@ export default {
       if (!this.uploadData.name) {
         this.uploadData.name = "网络-" + this.getDate();
       }
-      console.log(this.model)
       this.uploadData.nodeCount = this.model.nodeList.length;
       this.uploadData.linkCount = this.model.linkList.length;
     },
@@ -506,6 +527,8 @@ export default {
         });
         return;
       }
+      let evidenceSet = new Set(this.evidenceList);
+      let targetSet = new Set(this.targetList);
       this.inferenceLoading = true;
       this.$request
         .post("/bayes/network/inference", {
@@ -564,9 +587,25 @@ export default {
               probability: p
             });
           }
+          for (let i of nodeList) {
+            if (evidenceSet.has(i.nodeName)) {
+              i.background = [0xe6, 0xa2, 0x3c];
+              i.borderColor = [0xe6, 0xa2, 0x3c];
+            } else if (targetSet.has(i.nodeName)) {
+              i.background = [240, 230, 140];
+              i.borderColor = [240, 230, 140];
+            } else {
+              i.background = [0xe6, 0xf7, 0xff];
+              i.borderColor = [0x33, 0xa7, 0xeb];
+            }
+          }
           console.log(nodeList);
           let list = nodeList;
-          this.inference = nodeList;
+          this.inference = {
+            nodeList,
+            evidenceSet,
+            targetSet
+          };
           this.inferenceData = this.inference;
           // let labels = list.map(x => x.nodeName);
           let len = list.reduce((a, b) => {
@@ -660,13 +699,13 @@ export default {
               let temp = "";
               temp +=
                 b.nodeId +
-                "\t" +
+                "\n" +
                 b.valueNum +
-                "\t" +
+                "\n" +
                 b.stringCPT +
-                "\t" +
+                "\n" +
                 b.sequence.join(",") +
-                "\t";
+                "\n";
               let first = true;
               for (let i of b.sequence) {
                 if (first) {
@@ -676,7 +715,7 @@ export default {
                 }
                 temp += this.idMap[i].valueNum;
               }
-              temp += "\t";
+              temp += "\n";
               a += temp;
               return a;
             }, "")
@@ -725,6 +764,7 @@ export default {
                 };
               })
             };
+
             // let width = nonCondition.length;
             // let data = [];
             // let temp = [];

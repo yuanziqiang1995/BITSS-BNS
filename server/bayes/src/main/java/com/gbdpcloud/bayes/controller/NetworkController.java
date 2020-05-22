@@ -39,7 +39,7 @@ public class NetworkController {
     public List<String> runPython(String[] args)throws Exception{
         Process proc = Runtime.getRuntime().exec(args);// 执行py文件
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(),"gb2312"));
         List<String> result = new ArrayList<>();
         String line = null;
         while ((line = in.readLine()) != null) {
@@ -74,7 +74,9 @@ public class NetworkController {
         DataSets dataSets = dataSetsDao.selectById(datasetId);
         String tempFileName = IdGen.uuid();
         File f = new File(tempFileName);
-        try (FileWriter output = new FileWriter(f);) {
+        try (Writer output = new BufferedWriter(
+                new OutputStreamWriter(
+                        new FileOutputStream(f), "UTF-8"))) {
             output.write(edges);
         } catch (IOException e) {
             e.printStackTrace();
@@ -102,7 +104,9 @@ public class NetworkController {
         DataSets dataSets = dataSetsDao.selectById(datasetId);
         String tempFileName = IdGen.uuid();
         File f = new File(tempFileName);
-        try (FileWriter output = new FileWriter(f);) {
+        try (Writer output = new BufferedWriter(
+                new OutputStreamWriter(
+                        new FileOutputStream(f), "UTF-8"))) {
             output.write(nodes);
             output.write("\n");
             output.write(edges);
@@ -132,7 +136,9 @@ public class NetworkController {
         }
         String tempFileName = IdGen.uuid();
         File f = new File(tempFileName);
-        try (FileWriter output = new FileWriter(f);) {
+        try (Writer output = new BufferedWriter(
+                new OutputStreamWriter(
+                        new FileOutputStream(f), "UTF-8"))) {
             output.write(nodes);
             output.write("\n");
             output.write(edges);
@@ -166,14 +172,12 @@ public class NetworkController {
         if (nodes == null) {
             nodes = "";
         }
-        String[] ss = nodes.split("\t");
         String tempFileName = IdGen.uuid();
         File f = new File(tempFileName);
-        try (FileWriter output = new FileWriter(f);) {
-            for (String s : ss) {
-                output.write(s);
-                output.write('\n');
-            }
+        try (Writer output = new BufferedWriter(
+                new OutputStreamWriter(
+                        new FileOutputStream(f), "UTF-8"))) {
+            output.write(nodes);
             output.write("\n");
             output.write(edges);
             output.write("\n\n");
@@ -208,7 +212,9 @@ public class NetworkController {
         }
         String tempFileName = IdGen.uuid();
         File f = new File(tempFileName);
-        try (FileWriter output = new FileWriter(f);) {
+        try (Writer output = new BufferedWriter(
+                new OutputStreamWriter(
+                        new FileOutputStream(f), "UTF-8"))) {
             for (StaticDiscreteNodeVO staticDiscreteNodeVO : singleVO.getNodeList()) {
                 output.write(staticDiscreteNodeVO.getNodeName());
                 output.write('\n');
@@ -283,7 +289,7 @@ public class NetworkController {
         }
     }
 
-    <T> void write(FileWriter fileWriter, List<T> list, Consumer<T> consumer) throws IOException {
+    <T> void write(Writer fileWriter, List<T> list, Consumer<T> consumer) throws IOException {
         if (list.size() > 0){
             consumer.accept(list.get(0));
             for(int i=1;i<list.size();i++){

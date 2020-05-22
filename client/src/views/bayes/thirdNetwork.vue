@@ -49,26 +49,26 @@ export default {
         };
       });
       let linkDataArray = model.link;
-      let maxv = 0.0
-      let minv = 1.0
-      for(let i of linkDataArray){
-        if(i.mutual){
-        if(i.mutual > maxv){
-          maxv = i.mutual
-        }
-        if(i.mutual < minv){
-          minv = i.mutual
-        }
+      let maxv = 0.0;
+      let minv = 1.0;
+      for (let i of linkDataArray) {
+        if (i.mutual) {
+          if (i.mutual > maxv) {
+            maxv = i.mutual;
+          }
+          if (i.mutual < minv) {
+            minv = i.mutual;
+          }
         }
       }
-      for(let i of linkDataArray){
-        console.log(i.mutual,i.color)
-        if(i.mutual && !i.color){
-        let mutual = (i.mutual - minv)/(maxv - minv)
-        let v = (1- 1 / ((1-mutual) * (1-mutual) + 1))*2 * 200
-        // i.width = 10*v + 1
-        i.color = `rgb(${v},${v},${v})`
-        // console.log(mutual)
+      for (let i of linkDataArray) {
+        console.log(i.mutual, i.color);
+        if (i.mutual && !i.color) {
+          let mutual = (i.mutual - minv) / (maxv - minv);
+          let v = (1 - 1 / ((1 - mutual) * (1 - mutual) + 1)) * 2 * 200;
+          // i.width = 10*v + 1
+          i.color = `rgb(${v},${v},${v})`;
+          // console.log(mutual)
         }
         // i.color = 'red'
       }
@@ -76,7 +76,6 @@ export default {
         nodeDataArray,
         linkDataArray
       );
-       
     },
     getModel() {
       return {
@@ -107,16 +106,14 @@ export default {
             isGroup: true,
             color: "blue"
           },
-        allowDelete:false,
+          allowDelete: true,
           // "grid.visible":true,
           // enable undo & redo
-          "validCycle":go.Diagram.CycleNotDirected,
+          validCycle: go.Diagram.CycleNotDirected,
           "undoManager.isEnabled": !this.readOnly,
           "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom
         }
       );
-
-      
 
       var nodeSelectionAdornmentTemplate = MAKE(
         go.Adornment,
@@ -347,18 +344,23 @@ export default {
           rotatable: true,
           rotateAdornmentTemplate: nodeRotateAdornmentTemplate
         },
-        MAKE(go.Shape, "Rectangle", {
-          fill: "#E6F7FF", // the default fill, if there is no data bound value
-          portId: "",
-          cursor: "pointer", // the Shape is the port, not the whole Node
-          // allow all kinds of links from and to this port
-          fromLinkable: true,
-          fromLinkableSelfNode: true,
-          fromLinkableDuplicates: true,
-          toLinkable: true,
-          toLinkableSelfNode: true,
-          toLinkableDuplicates: true
-        },new go.Binding("fill","color")),
+        MAKE(
+          go.Shape,
+          "Rectangle",
+          {
+            fill: "#E6F7FF", // the default fill, if there is no data bound value
+            portId: "",
+            cursor: "pointer", // the Shape is the port, not the whole Node
+            // allow all kinds of links from and to this port
+            fromLinkable: true,
+            fromLinkableSelfNode: true,
+            fromLinkableDuplicates: true,
+            toLinkable: true,
+            toLinkableSelfNode: true,
+            toLinkableDuplicates: true
+          },
+          new go.Binding("fill", "color")
+        ),
         MAKE(
           go.TextBlock,
           {
@@ -425,7 +427,7 @@ export default {
             stroke: "rgba(0,0,0,0.5)"
           },
           new go.Binding("stroke", "color"),
-          new go.Binding("strokeDashArray","dash")
+          new go.Binding("strokeDashArray", "dash")
         ),
         MAKE(
           go.Shape,
@@ -601,42 +603,59 @@ export default {
         )
       );
       if (this.treeLayout) {
-        this.myDiagram.layout = MAKE(go.TreeLayout);
+        // this.myDiagram.layout = MAKE(go.TreeLayout);
       }
-      this.myDiagram.addDiagramListener("ChangedSelection",(e,obj) => {
-        let data = this.myDiagram.selection.first().data
-        console.log(this.myDiagram.model.nodeDataArray)
-        if (data.hasOwnProperty("from")){
-          for(let i of this.model.node){
-            console.log(i)
+      this.myDiagram.commandHandler.canDeleteSelection = e => { 
+			//用例获取选中的节点或线 
+			return this.myDiagram.selection.all(function(nodeOrLink) { 
+				//判断是否存在不允许删除的节点或线 
+				if(!nodeOrLink.data.hasOwnProperty("from")){ 
+					return false; 
+				}else{ 
+					return true; 
+				} 
+			}); 
+		}
+    
+      this.myDiagram.addDiagramListener("ChangedSelection", (e, obj) => {
+        let data = this.myDiagram.selection.first().data;
+        console.log(this.myDiagram.model.nodeDataArray);
+        if (data.hasOwnProperty("from")) {
+          for (let i of this.model.node) {
+            console.log(i);
             let d = this.myDiagram.model.findNodeDataForKey(i.nodeName);
-            console.log(d)
-            this.myDiagram.model.setDataProperty(d, 'color', '#E6F7FF');
+            console.log(d);
+            this.myDiagram.model.setDataProperty(d, "color", "#E6F7FF");
           }
         } else {
-          let mutual = data.mutual
-          let maxv = 0.0
-          let minv = 1.0
-          for(let i in mutual){
-            if(mutual[i] > maxv){
-              maxv = mutual[i]
+          let mutual = data.mutual;
+          let maxv = 0.0;
+          let minv = 1.0;
+          for (let i in mutual) {
+            if (mutual[i] > maxv) {
+              maxv = mutual[i];
             }
-            if(mutual[i] < minv){
-              minv = mutual[i]
+            if (mutual[i] < minv) {
+              minv = mutual[i];
             }
           }
-          this.myDiagram.model.setDataProperty(data, 'color', '#E6F7FF');
-          for(let i in mutual){
-             let d = this.myDiagram.model.findNodeDataForKey(i);
-            console.log(d)
-            let v = (mutual[i] - minv)/(maxv - minv)
-            let color = 'rgb('+ (255 * (1  -v) + 64*v)+','+ (255*(1 - v) + 159*v)+',255)'
-            this.myDiagram.model.setDataProperty(d, 'color', color);
+          this.myDiagram.model.setDataProperty(data, "color", "#E6F7FF");
+          for (let i in mutual) {
+            let d = this.myDiagram.model.findNodeDataForKey(i);
+            console.log(d);
+            let v = (mutual[i] - minv) / (maxv - minv);
+            let color =
+              "rgb(" +
+              (255 * (1 - v) + 64 * v) +
+              "," +
+              (255 * (1 - v) + 159 * v) +
+              ",255)";
+            this.myDiagram.model.setDataProperty(d, "color", color);
           }
           // this.myDiagram.model.setDataProperty(data, 'color', 'purple');
         }
         //  this.$emit('selection-changed',this.myDiagram.selection.first().data)
-      })
+      });
       // Create the Diagram's Model:
       this.modelChanged(this.model);
     }

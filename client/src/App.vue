@@ -283,7 +283,7 @@ export default {
     };
   },
   mounted() {
-    axios.get("/dataset/use").then(console.log);
+    // axios.get("/dataset/use").then(console.log);
   }
 };
 </script>

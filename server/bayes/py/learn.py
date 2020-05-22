@@ -16,7 +16,7 @@ class LearnBayes:
         return edges
 
     def learn(self, file1, file2):
-        f1 = open(file1)
+        f1 = open(file1,encoding="utf8")
         lines = f1.readlines()
         edges = self.getegdes(lines[0])
         data = pd.read_csv(file2)
