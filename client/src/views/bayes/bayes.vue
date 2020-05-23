@@ -52,8 +52,6 @@
           :model="network.fourthModel"
           :nameIdMap="network.nameIdMap"
         ></fourth>
-        <!-- <testgo></testgo> -->
-        <!-- <mynetwork></mynetwork> -->
       </div>
       <div slot="icons" style="z-index:1000;">
         <el-button-group>
@@ -64,12 +62,13 @@
             size="small"
             type="success"
             @click="helpVisible = true;"
-          >说明</el-button>
+          >功能说明</el-button>
           <el-button
             icon="el-icon-menu"
             style="z-index:1000;"
             title="查看原始数据"
             size="small"
+            @click='dataVisible=true;'
             type="success"
           >数据</el-button>
         </el-button-group>
@@ -78,52 +77,162 @@
     <el-dialog :visible.sync="helpVisible">
       <el-tabs slot="title" v-model="currentHelpTab" @tab-click="handleClick">
         <el-tab-pane label="添加先验知识" name="c0">
-          本页面进行网络图先验知识的编辑，用户可在该页面
-          <span style="color:orange">连接变量</span>作为先验知识。
-          连接说明：
-          <ul>
-            <li>1. 左键点击图中一个变量</li>
-            <li>2. 鼠标移到该变量的边缘</li>
-            <li>3. 当指针变为手指时进行按住左键并移到另一个变量完成连接</li>
+          <ul style="padding-inline-start:0;">
+            <ol>
+              <h4>1) 编辑先验知识</h4>
+              <p>可以手动编辑节点间的连线：将鼠标移至某节点边缘，当指针变为手指时进行按住左键并移到另一个变量完成连接</p>
+              <p>
+                完成先验知识编辑后，点击
+                <span class="emphasize">下一步</span>
+                进行网络初始化
+              </p>
+            </ol>
+            <ol>
+              <h4>2) 查看节点信息</h4>
+              <p>点击右边的节点列表以查看节点样本数据分布</p>
+            </ol>
           </ul>
         </el-tab-pane>
         <el-tab-pane label="生成初始网络" name="c1">
-          本页面
-          <span style="color:orange">只读</span>，
+          <ul style="padding-inline-start:0;">
+            <ol>
+              <h4>1) 查看网络结构</h4>
+              <p>
+                本页网络
+                <span class="emphasize">只读</span>
+                ，可以进行节点与连线的拖拽
+              </p>
+              <p>
+                查看完成后，点击
+                <span class="emphasize">下一步</span>
+                进行网络优化
+              </p>
+            </ol>
+            <ol>
+              <h4>2) 查看节点信息</h4>
+              <p>在右边选择变量后可以查看其样本数据分布与条件概率表</p>
+            </ol>
+          </ul>
         </el-tab-pane>
-        <el-tab-pane label="网络优化" name="c2">角色管理</el-tab-pane>
-        <el-tab-pane label="网络推理" name="c3">定时任务补偿</el-tab-pane>
+        <el-tab-pane label="网络优化" name="c2">
+          <ul style="padding-inline-start:0;">
+            <ol>
+              <h4>1) 优化网络结构</h4>
+              <p>
+                点击
+                <span class="emphasize">应用建议</span>
+                会删除红色边，连接绿色边
+              </p>
+              <p>点击网络中的某个节点可以查看与其他节点的互信息</p>
+              <p>
+                点击
+                <span class="emphasize">提交评估</span>
+                会得到三种评分与优化删除的建议，以表格形式显示在下方
+              </p>
+              <p>
+                点击
+                <span class="emphasize">历史操作的载入</span>
+                会将对应的网络结构载入为当前网络
+              </p>
+              <p>
+                点击
+                <span class="emphasize">下一步</span>
+                进入网络推理页面
+              </p>
+            </ol>
+            <ol>
+              <h4>2) 查看节点信息</h4>
+              <p>在右边选择变量后可以查看其样本数据分布与条件概率表</p>
+            </ol>
+          </ul>
+        </el-tab-pane>
+        <el-tab-pane label="网络推理" name="c3">
+          <ul style="padding-inline-start:0;">
+            <ol>
+              <h4>1) 网络推理</h4>
+              <p>
+                在右边设置推理目标与证据集后，点击
+                <span class="emphasize">推理</span>
+                进行网络推理，结果会以条形图显示在网络图中
+              </p>
+            </ol>
+            <ol>
+              <h4>2) 条件概率可视化</h4>
+              <p>
+                点击
+                <span class="emphasize">条件概率可视化</span>
+                打开弹窗，填写表达进行条件概率可视化
+              </p>
+            </ol>
+            <ol>
+              <h4>3) 保存网络</h4>
+              <p>
+                点击
+                <span class="emphasize">保存网络</span>
+                在弹窗进行网络结构的保存
+              </p>
+            </ol>
+          </ul>
+        </el-tab-pane>
       </el-tabs>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="helpVisible = false">确 定</el-button>
       </div>
     </el-dialog>
+    <el-dialog :visible.sync="dataVisible" id='dataDialog' title="查看数据集">
+      <div>
+      <el-table
+        :data="list"
+        v-loading="listLoading"
+        element-loading-text="给我一点时间"
+        border
+        size="mini"
+      >
+        <el-table-column v-for='(item,index) in dataheader' align="center" :label='item' :prop='item' :key='index'/>
+      </el-table>
+      </div>
+      <div slot="footer" align="left">
+        <el-pagination
+          background
+          pager-count='4'
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="page"
+          :page-sizes="[10,20,30, 50]"
+          small
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+        ></el-pagination>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
-import echarts from "echarts";
 import bayesLayout from "./bayesLayout";
 import first from "./first";
 import second from "./second";
 import third from "./third";
 import fourth from "./fourth";
-import mynetwork from "./mynetwork";
-import testgo from "./testgo";
-// import {mapState} from 'vuex'
 
 export default {
   name: "bayes",
   components: {
-    testgo,
     bayesLayout,
     first,
     second,
     third,
-    mynetwork,
     fourth
   },
   data() {
     return {
+      dataVisible: false,
+      dataheader: [],
+      listLoading: false,
+      list:[],
+      page: 1,
+      pageSize: 10,
+      total: 0,
       steps: ["添加先验知识", "生成初始网络", "网络优化", "网络推理"],
       activeStep: 0,
       waiting: 0,
@@ -156,7 +265,8 @@ export default {
     });
     let datasetId = this.$route.query.datasetId;
     let modelId = this.$route.query.modelId;
-    if(modelId){
+    this.queryData(1)
+    if (modelId) {
       this.$request
         .get("/bayes/static/discrete/loadModel?modelId=" + modelId)
         .then(res => {
@@ -167,14 +277,14 @@ export default {
           this.network.secondModel = {
             linkList: temp.linkList,
             nodeList: temp.nodeList.map(x => {
-              let ttt = []
-              for(let i =0;i<x.values.length;i++){
+              let ttt = [];
+              for (let i = 0; i < x.values.length; i++) {
                 ttt.push({
                   id: x.values[i],
                   name: x.values[i],
                   probability: x.probability[i],
                   count: x.counts[i]
-                })
+                });
               }
               this.network.nodeInfo.push({
                 nodeId: x.id,
@@ -192,64 +302,95 @@ export default {
               };
             })
           };
-          loading.close()
-          console.log(this.network.idMap,this.network.secondModel)
+          loading.close();
           for (let i of this.network.nodeInfo) {
             this.network.idMap[i.nodeId] = i;
           }
         });
     } else {
-    this.$request
-      .get("/bayes/network/init?datasetId=" + datasetId)
-      .then(res => {
-        res.data.data;
-        let info = "";
-        let vals = [];
-        let flag = true;
-        let nodeList = [];
-        for (let i of res.data.data) {
-          if (flag) {
-            info = i;
-            flag = false;
-            vals = [];
-          } else {
-            if (i !== "") {
-              vals.push(i);
+      this.$request
+        .get("/bayes/network/init?datasetId=" + datasetId)
+        .then(res => {
+          res.data.data;
+          let info = "";
+          let vals = [];
+          let flag = true;
+          let nodeList = [];
+          for (let i of res.data.data) {
+            if (flag) {
+              info = i;
+              flag = false;
+              vals = [];
             } else {
-              flag = true;
-              let infoSplit = info.split("\t");
-              let o = {
-                nodeId: infoSplit[1],
-                nodeName: infoSplit[1],
-                valueNum: +infoSplit[2],
-                value: vals.map(x => {
-                  let t = x.split("\t");
-                  return {
-                    id: t[0],
-                    name: t[1],
-                    count: +t[2],
-                    probability: +t[3]
-                  };
-                })
-              };
-              nodeList.push(o);
+              if (i !== "") {
+                vals.push(i);
+              } else {
+                flag = true;
+                let infoSplit = info.split("\t");
+                let o = {
+                  nodeId: infoSplit[1],
+                  nodeName: infoSplit[1],
+                  valueNum: +infoSplit[2],
+                  value: vals.map(x => {
+                    let t = x.split("\t");
+                    return {
+                      id: t[0],
+                      name: t[1],
+                      count: +t[2],
+                      probability: +t[3]
+                    };
+                  })
+                };
+                nodeList.push(o);
+              }
             }
           }
-        }
-        this.network.nodeInfo = nodeList;
-        let idMap = {};
-        let nameIdMap = {};
-        for (let i of nodeList) {
-          idMap[i.nodeId] = i;
-          nameIdMap[i.nodeName] = i.nodeId;
-        }
-        // this.network.nameIdMap = nameIdMap;
-        this.network.idMap = idMap;
-        loading.close();
-      });
+          this.network.nodeInfo = nodeList;
+          let idMap = {};
+          let nameIdMap = {};
+          for (let i of nodeList) {
+            idMap[i.nodeId] = i;
+            nameIdMap[i.nodeName] = i.nodeId;
+          }
+          // this.network.nameIdMap = nameIdMap;
+          this.network.idMap = idMap;
+          loading.close();
+        });
     }
   },
   methods: {
+    handleSizeChange(val) {
+      this.pageSize = val;
+      this.queryData(1);
+    },
+    handleCurrentChange(val) {
+      this.page = val;
+      this.queryData(val);
+    },
+    queryData(page) {
+      this.page = page;
+      this.listLoading = true;
+      this.$request
+        .get(
+          `/bayes/network/data?datasetId=${this.$route.query.datasetId}&page=${page}&pageSize=${this.pageSize}`
+        )
+        .then(res => {
+          this.listLoading = false;
+          this.total = +res.data.data[0];
+          this.dataheader = res.data.data[1].split(",");
+          let t = [];
+          for (let i = 2; i < res.data.data.length; i++) {
+            let v = res.data.data[i].split(",")
+            let o = {}
+            for(let j = 0;j<v.length;j++){
+              o[this.dataheader[j]] = v[j]
+            }
+            t.push(o);
+          }
+          console.log(t)
+          this.list = t;
+        });
+    },
     nextStep() {
       this.waiting = 1;
       let that = this;
@@ -311,7 +452,6 @@ export default {
                 linkList,
                 nodeList
               };
-              console.log(that.network.secondModel);
               that.activeStep = 1;
               that.currentHelpTab = "c" + that.activeStep;
             });
@@ -332,7 +472,6 @@ export default {
               })
             })
             .then(res => {
-              console.log(res);
               let r = res.data.data;
               let info = r[0].split(",");
               let tempModel = JSON.parse(
@@ -427,7 +566,6 @@ export default {
                   mutualInf: (+t[2]).toFixed(3)
                 };
               });
-              console.log(tempModel, "model");
               let time = new Date();
 
               tempModel.time =
@@ -502,11 +640,20 @@ export default {
 };
 </script>
 <style scoped>
-.echart {
-  width: 100%;
-  height: 100%;
+ul > ol {
   margin: 0;
+  padding-left: 0px;
+}
+ul > ol > h4 {
+  color: #444;
+  font-weight: 600;
+}
+.emphasize {
+  color: orange;
+}
+ul > ol > p {
   padding: 0;
+  margin: 10px;
 }
 .fit {
   width: 100%;
@@ -516,10 +663,10 @@ export default {
 }
 </style>
 <style>
-.el-steps--simple {
-  background: transparent;
+#dataDialog > .el-dialog{
+  min-width:550px;
 }
-.el-step.is-simple:not(:last-of-type) .el-step__title {
-  max-width: none;
+#dataDialog .el-dialog__body{
+  padding:0px 20px;
 }
 </style>

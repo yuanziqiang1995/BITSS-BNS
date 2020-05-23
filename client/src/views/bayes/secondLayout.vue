@@ -6,12 +6,9 @@
     <div style="flex-grow:2;height:100%;max-width: 300px;min-width:300px;">
       <slot name="right"></slot>
     </div>
-    
   </div>
 </template>
 <script>
-// import {mapState} from 'vuex'
-
 export default {
   name: "secondLayout",
   data() {
@@ -20,12 +17,6 @@ export default {
 };
 </script>
 <style scoped>
-.echart {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 .fit {
   width: 100%;
   height: 100%;

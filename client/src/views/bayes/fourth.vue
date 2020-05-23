@@ -1,7 +1,7 @@
 <template>
   <div class="fit">
     <fourthLayout>
-      <testgo :inference="inference" id="ddd" slot="left" :model="model" :idMap="idMap"></testgo>
+      <inferenceNetwork :inference="inference" id="ddd" slot="left" :model="model" :idMap="idMap"></inferenceNetwork>
 
       <div slot="right" style="display:flex;flex-direction:column;height:100%;">
         <div
@@ -342,22 +342,17 @@
 </template>
 <script>
 import fourthLayout from "./fourthLayout";
-import mynetwork from "./mynetwork";
-import testgo from "./testgo";
+import inferenceNetwork from "./inferenceNetwork";
 import PixelMap from "@/components/visual/PixelMap";
 import MultiPixelMap from "@/components/visual/MultiPixelMap";
-import Bar from "@/components/echarts/Bar";
-// import {mapState} from 'vuex'
 
 export default {
   name: "fourth",
   components: {
     fourthLayout,
-    mynetwork,
-    testgo,
+    inferenceNetwork,
     PixelMap,
-    MultiPixelMap,
-    Bar
+    MultiPixelMap
   },
   props: {
     nodeInfo: {
@@ -436,11 +431,9 @@ export default {
     };
   },
   mounted() {
-    console.log(this.networkId);
   },
   watch: {
     currentVariable(to, from) {
-      console.log(to, this.currentVariable);
       if (to != null) {
         this.currentValues = this.variables[to].values;
       } else {
@@ -452,7 +445,6 @@ export default {
   methods: {
     handleSave() {
       let id = 1;
-      console.log(this.model, this.nodeInfo, this.idMap);
       let param = {
         modelId: this.networkId,
         description: this.uploadData.description,
@@ -599,7 +591,6 @@ export default {
               i.borderColor = [0x33, 0xa7, 0xeb];
             }
           }
-          console.log(nodeList);
           let list = nodeList;
           this.inference = {
             nodeList,
@@ -810,12 +801,6 @@ export default {
 };
 </script>
 <style scoped>
-.echart {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 .fit {
   width: 100%;
   height: 100%;

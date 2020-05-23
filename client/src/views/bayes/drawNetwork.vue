@@ -47,7 +47,6 @@ export default {
       );
     },
     modelChanged(model) {
-      console.log(model)
       let nodeDataArray = model.node.map(x => {
         return {
           key: x.nodeName,
@@ -606,52 +605,4 @@ export default {
 };
 </script>
 <style scoped>
-#form-wrap {
-  padding: 20px 40px;
-  background-color: white;
-  border: solid 1px rgb(244, 244, 244);
-}
-
-#submit {
-  width: 102px;
-  height: 40px;
-  float: right;
-  margin: 20px 5px 16px 0;
-}
-
-#chart-wrap {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 22px;
-}
-#chart-wrap #chart-palette {
-  width: 180px;
-  margin-right: 30px;
-  background-color: white;
-  border: solid 1px rgb(244, 244, 244);
-}
-
-#chart-wrap #chart-diagram {
-  flex-grow: 1;
-  height: 720px;
-  background-color: white;
-  border: solid 1px rgb(244, 244, 244);
-}
-#lateEntry {
-  clear: both;
-  background-color: rgb(255, 255, 255);
-  border: solid 1px rgb(244, 244, 244);
-}
-#lateEntry > span {
-  display: inline-block;
-  height: 50px;
-  font-size: 16px;
-  line-height: 50px;
-  text-indent: 30px;
-  letter-spacing: 0.8px;
-  text-align: left;
-  color: rgb(35, 35, 35);
-  border-bottom: 1px solid rgb(234, 234, 234);
-}
 </style>

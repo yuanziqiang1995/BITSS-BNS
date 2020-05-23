@@ -62,13 +62,11 @@ export default {
         }
       }
       for (let i of linkDataArray) {
-        console.log(i.mutual, i.color);
         if (i.mutual && !i.color) {
           let mutual = (i.mutual - minv) / (maxv - minv);
           let v = (1 - 1 / ((1 - mutual) * (1 - mutual) + 1)) * 2 * 200;
           // i.width = 10*v + 1
           i.color = `rgb(${v},${v},${v})`;
-          // console.log(mutual)
         }
         // i.color = 'red'
       }
@@ -605,26 +603,27 @@ export default {
       if (this.treeLayout) {
         // this.myDiagram.layout = MAKE(go.TreeLayout);
       }
-      this.myDiagram.commandHandler.canDeleteSelection = e => { 
-			//用例获取选中的节点或线 
-			return this.myDiagram.selection.all(function(nodeOrLink) { 
-				//判断是否存在不允许删除的节点或线 
-				if(!nodeOrLink.data.hasOwnProperty("from")){ 
-					return false; 
-				}else{ 
-					return true; 
-				} 
-			}); 
-		}
-    
+      this.myDiagram.commandHandler.canDeleteSelection = e => {
+        //用例获取选中的节点或线
+        return this.myDiagram.selection.all(function(nodeOrLink) {
+          //判断是否存在不允许删除的节点或线
+          
+          if (!nodeOrLink.data||!nodeOrLink.data.hasOwnProperty("from")) {
+            return false;
+          } else {
+            return true;
+          }
+        });
+      };
+
       this.myDiagram.addDiagramListener("ChangedSelection", (e, obj) => {
-        let data = this.myDiagram.selection.first().data;
-        console.log(this.myDiagram.model.nodeDataArray);
-        if (data.hasOwnProperty("from")) {
+        let data = this.myDiagram.selection.first()
+        if(data){
+          data = data.data
+        }    
+        if (!data || data.hasOwnProperty("from")) {
           for (let i of this.model.node) {
-            console.log(i);
             let d = this.myDiagram.model.findNodeDataForKey(i.nodeName);
-            console.log(d);
             this.myDiagram.model.setDataProperty(d, "color", "#E6F7FF");
           }
         } else {
@@ -642,7 +641,6 @@ export default {
           this.myDiagram.model.setDataProperty(data, "color", "#E6F7FF");
           for (let i in mutual) {
             let d = this.myDiagram.model.findNodeDataForKey(i);
-            console.log(d);
             let v = (mutual[i] - minv) / (maxv - minv);
             let color =
               "rgb(" +
@@ -663,52 +661,4 @@ export default {
 };
 </script>
 <style scoped>
-#form-wrap {
-  padding: 20px 40px;
-  background-color: white;
-  border: solid 1px rgb(244, 244, 244);
-}
-
-#submit {
-  width: 102px;
-  height: 40px;
-  float: right;
-  margin: 20px 5px 16px 0;
-}
-
-#chart-wrap {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 22px;
-}
-#chart-wrap #chart-palette {
-  width: 180px;
-  margin-right: 30px;
-  background-color: white;
-  border: solid 1px rgb(244, 244, 244);
-}
-
-#chart-wrap #chart-diagram {
-  flex-grow: 1;
-  height: 720px;
-  background-color: white;
-  border: solid 1px rgb(244, 244, 244);
-}
-#lateEntry {
-  clear: both;
-  background-color: rgb(255, 255, 255);
-  border: solid 1px rgb(244, 244, 244);
-}
-#lateEntry > span {
-  display: inline-block;
-  height: 50px;
-  font-size: 16px;
-  line-height: 50px;
-  text-indent: 30px;
-  letter-spacing: 0.8px;
-  text-align: left;
-  color: rgb(35, 35, 35);
-  border-bottom: 1px solid rgb(234, 234, 234);
-}
 </style>

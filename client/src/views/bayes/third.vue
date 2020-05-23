@@ -4,7 +4,13 @@
     <div slot="buttons" style="z-index:1000;">
       <el-button-group>
         <el-button type="primary" style="z-index:1000;" size="small" @click="applySuggest">使用全部建议</el-button>
-        <el-button type="primary" style="z-index:1000;" size="small" @click="submitNetwork" :loading='judging'>评估网络</el-button>
+        <el-button
+          type="primary"
+          style="z-index:1000;"
+          size="small"
+          @click="submitNetwork"
+          :loading="judging"
+        >评估网络</el-button>
       </el-button-group>
     </div>
 
@@ -47,7 +53,7 @@
     <div slot="b1" class="fit">
       <el-tabs type="border-card">
         <el-tab-pane label="建议添加">
-          <el-table :data="addList" size="small" style="width: 100%">
+          <el-table :data="addList" size="mini" style="width: 100%">
             <el-table-column prop="source" label="前驱"></el-table-column>
             <el-table-column prop="target" label="后继"></el-table-column>
             <el-table-column prop="mutualInf" label="互信息"></el-table-column>
@@ -62,18 +68,19 @@
         </el-tab-pane>
       </el-tabs>
     </div>
-    <div slot="b2" style="height:100%;display:flex;flex-direction:column;">
+    <div slot="b2" class='fit' style="position:relative;">
       <div
-        style="background:#f5f7fa;padding:0 5px;line-height:39px;flex-grow:0;display:block;width:100%;border-bottom:1px solid rgba(0,0,0,0.13)"
+        style="position:absolute;right:0;top:-39px;padding:0 5px;line-height:39px;flex-grow:0;display:block;width:166%;overflow:none;"
       >
         <span
-          style="color:rgb(144,147,153);cursor:default;font-weight:700; line-height: 23px;
-  "
+          style="color:rgb(144,147,153);cursor:default;font-weight:700; line-height: 23px;"
         >当前评分</span>
         Bic: {{this.bic}} Bdeu: {{this.bdeu}} K2: {{this.k2}}
       </div>
-      <div style="overflow-y:auto;width:100%;flex-grow:1;">
-        <el-table :data="models" size="small" style="width: 100%">
+      <el-tabs type="border-card">
+        <el-tab-pane label="操作记录">
+         <div style="overflow-y:auto;width:100%;flex-grow:1;">
+        <el-table :data="models" size="mini" style="width: 100%">
           <el-table-column prop="time" label="时间"></el-table-column>
           <el-table-column prop="Bic" label="Bic"></el-table-column>
           <el-table-column prop="Bdeu" label="Bdeu"></el-table-column>
@@ -81,20 +88,22 @@
 
           <el-table-column label="操作">
             <template slot-scope="scope">
-              <el-button size="small" @click="loadModel(scope.row)">载入</el-button>
+              <el-button size="mini" @click="loadModel(scope.row)">载入</el-button>
             </template>
           </el-table-column>
         </el-table>
       </div>
+        </el-tab-pane>
+      </el-tabs>
+    
+      
     </div>
   </thirdLayout>
 </template>
 <script>
-import echarts from "echarts";
 import thirdLayout from "./thirdLayout";
 import thirdNetwork from "./thirdNetwork";
 import CellMap from "@/components/visual/CellMap";
-// import {mapState} from 'vuex'
 
 export default {
   name: "third",
@@ -207,8 +216,8 @@ export default {
     submitNetwork() {
       let links = this.$refs.thirdNetwork.getModel().link;
       let link2 = links.filter(x => x.color !== "#00FF7F");
-      let that = this
-      this.judging = true
+      let that = this;
+      this.judging = true;
 
       this.$request
         .post("/bayes/network/opt", {
@@ -223,18 +232,16 @@ export default {
           })
         })
         .then(res => {
-          console.log(res);
-          console.log(that.nameIdMap)
           let r = res.data.data;
           let info = r[0].split(",");
           let tempModel = {
-            linkList:link2.map(x => {
+            linkList: link2.map(x => {
               return {
                 sourceId: x.from,
                 targetId: x.to
-              }
+              };
             })
-          }
+          };
           tempModel.K2 = (+info[0]).toFixed(3);
           tempModel.Bic = (+info[1]).toFixed(3);
           tempModel.Bdeu = (+info[2]).toFixed(3);
@@ -296,7 +303,7 @@ export default {
           }
           for (let i of cpts) {
             let t = i.split("\t");
-            let sequence = JSON.parse(t[3].replace(/'/g, '"'))
+            let sequence = JSON.parse(t[3].replace(/'/g, '"'));
             let stringCPT = t[2].replace(/"/g, "");
             let cpt = JSON.parse(stringCPT);
             if (sequence.length === 0) {
@@ -318,18 +325,14 @@ export default {
           }
           tempModel.nodeList = nodeList;
           let time = new Date();
-          console.log(tempModel,this.models)
           tempModel.time =
             time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
           this.models.push(tempModel);
-          this.judging = false
+          this.judging = false;
         });
-
-
     },
     applySuggest() {
       let tempModel = this.$refs.thirdNetwork.getModel();
-      console.log(tempModel);
       let tempLink = tempModel.link;
       let link2 = [];
       for (let j of tempLink) {
@@ -421,7 +424,6 @@ export default {
       this.bdeu = currentModel.Bdeu;
       this.nodeList = currentModel.nodeList;
       this.addList = currentModel.add.map(x => {
-        console.log(x.sourceId,this.idMap)
         return {
           sourceId: x.sourceId,
           targetId: x.targetId,
@@ -513,12 +515,6 @@ export default {
 };
 </script>
 <style scoped>
-.echart {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 .fit {
   width: 100%;
   height: 100%;

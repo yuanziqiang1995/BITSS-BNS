@@ -51,6 +51,19 @@ public class NetworkController {
         return result;
     }
 
+    @GetMapping("data")
+    public Result data(String datasetId,int page, int pageSize) {
+        DataSets dataSets = dataSetsDao.selectById(datasetId);
+        String filename = dataSets.getLocation() + datasetId;
+        String[] args = new String[]{"python", home + "/../py/data.py",filename, ""+(page-1),""+pageSize};
+        try {
+            return ResultGenerator.ok(runPython(args));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultGenerator.error("");
+        }
+    }
+
     @GetMapping("init")
     public Result init(String datasetId){
         DataSets dataSets = dataSetsDao.selectById(datasetId);

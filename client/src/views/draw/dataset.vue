@@ -22,12 +22,9 @@
         v-loading="listLoading"
         element-loading-text="给我一点时间"
         border
-        fit
         size='mini'
-        highlight-current-row
-        @selection-change="handleDownloads"
       >
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="40" />
         <el-table-column align="center" label width="65" type="index" :index="indexMethod" />
         <el-table-column align="center" label="数据集名称" prop="name" />
         <el-table-column align="center" label="数据集描述" prop="description" />
@@ -219,24 +216,6 @@ export default {
       return t;
     }
   },
-  created() {
-    this.getList();
-    fetchDataFormatList(this.listQuery).then(response => {
-      this.dataformatOptions = response.data.format.map(item => {
-        return { value: item.id, label: item.name };
-      });
-    });
-    fetchDataTypeList().then(response => {
-      // this.data = response.data.data
-      for (const v of response.data.data) {
-        v.label = v.name;
-        this.dataTypeData.push(v);
-      }
-      this.dataTypeData = arrayToTree1(this.dataTypeData);
-      console.log("树状结构");
-      console.log(this.dataTypeData);
-    });
-  },
   mounted() {
     this.queryData(1);
     const that = this;
@@ -249,7 +228,6 @@ export default {
   },
   watch: {
     fileList(to, from) {
-      console.log(111);
       if (to.length > 0) {
         this.uploadFormVisible = true;
       }
@@ -267,8 +245,6 @@ export default {
   },
   methods: {
     onFileChange(file, fileList) {
-      console.log(111);
-      console.log(fileList);
       if (fileList.length > 0) {
         this.fileList = fileList;
         this.file = fileList[0];
@@ -313,12 +289,7 @@ export default {
       this.$refs.upload.submit();
     },
     submitUpload(param) {
-      console.log({
-        file: param.file,
-        name: this.uploadDatasets.name,
-        description: this.uploadDatasets.description,
-        format: this.uploadDatasets.format
-      });
+   
       this.$request
         .upload("/bayes/datasets/upload", {
           file: param.file,
@@ -330,19 +301,10 @@ export default {
           this.$refs.upload.clearFiles();
           this.uploadFormVisible = false;
           this.queryData(1)
-          console.log(res);
         });
     },
     getList() {
       this.listLoading = false;
-      //   fetchDataList(this.listQuery).then(response => {
-      //     this.list = response.data.list
-      //     for(var i=0;i < this.list.length;i++){
-      //       this.list[i] = Object.assign({},this.list[i],this.list[i].dataset)
-      //     }
-      //     this.total = response.data.total
-      //     this.listLoading = false
-      //   })
     },
     handleFilter() {
       this.listQuery.pages = 1;

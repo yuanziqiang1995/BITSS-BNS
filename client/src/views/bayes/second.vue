@@ -1,6 +1,12 @@
 <template>
   <secondLayout>
-    <mynetwork id="secondNetwork" :readOnly='true' slot="left" :model="secondModel" :treeLayout='true'></mynetwork>
+    <mynetwork
+      id="secondNetwork"
+      :readOnly="true"
+      slot="left"
+      :model="secondModel"
+      :treeLayout="true"
+    ></mynetwork>
 
     <div slot="right" style="width:100%;height:100%;display:flex;flex-direction:column;">
       <el-tabs type="border-card">
@@ -34,7 +40,7 @@
               ></el-option>
             </el-select>
           </div>
-           <CellMap style="padding-top:20px;" id="secondPixelMap" :values="namedCpt" />
+          <CellMap style="padding-top:20px;" id="secondPixelMap" :values="namedCpt" />
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -46,8 +52,6 @@ import mynetwork from "./mynetwork";
 import _global from "./global.js";
 import CellMap from "@/components/visual/CellMap";
 
-// import {mapState} from 'vuex'
-
 export default {
   name: "second",
   components: {
@@ -58,8 +62,8 @@ export default {
   props: {
     nodeInfo: {
       type: Array,
-      default () {
-        return []
+      default() {
+        return [];
       }
     },
     idMap: {
@@ -73,11 +77,11 @@ export default {
       default() {
         return {};
       }
-    },
+    }
   },
   data() {
     return {
-     namedCpt: [],
+      namedCpt: [],
       currentValues: [],
       currentVariable: null,
       secondModel: {
@@ -87,7 +91,7 @@ export default {
     };
   },
   mounted() {
-    this.modelChanged(this.model)
+    this.modelChanged(this.model);
     if (_global.showReadonlyHint) {
       this.$msgbox({
         title: "提示",
@@ -109,7 +113,6 @@ export default {
   },
   methods: {
     modelChanged(model) {
-      console.log(model)
       this.secondModel = {
         link: model.linkList.map(x => {
           return {
@@ -122,7 +125,7 @@ export default {
     }
   },
   computed: {
-    variables () {
+    variables() {
       return this.nodeInfo.map(x => {
         return {
           name: x.nodeName,
@@ -134,10 +137,10 @@ export default {
               count: y.count,
               percent: y.probability.toFixed(3),
               id: y.id
-            }
+            };
           })
-        }
-      })
+        };
+      });
     }
   },
   watch: {
@@ -145,16 +148,13 @@ export default {
       this.modelChanged(to);
     },
     currentVariable(to, from) {
-      console.log(to, this.currentVariable);
       if (to != null) {
         this.currentValues = this.variables[to].values;
       } else {
         this.currentValues = [];
       }
       let v = this.variables[to];
-      console.log(v)
       for (let i of this.model.nodeList) {
-        console.log(1)
         if (i.nodeId === v.id) {
           let parent = i.sequence;
           let cpt = i.CPT;
@@ -165,25 +165,24 @@ export default {
               let newInfos = [];
               for (let k of infos) {
                 for (let z of j.value) {
-                  newInfos.push(k + "<br>" +j.nodeName + "：" + z.name );
+                  newInfos.push(k + "<br>" + j.nodeName + "：" + z.name);
                 }
               }
               infos = newInfos;
             }
           }
-          let namedCpt = []
-          for(let i=0;i<cpt.length;i++){
-            let temp = []
-            for(let j=0;j<cpt[i].length;j++){
+          let namedCpt = [];
+          for (let i = 0; i < cpt.length; i++) {
+            let temp = [];
+            for (let j = 0; j < cpt[i].length; j++) {
               temp.push({
-                info:v.name + "：" + v.values[j].value + infos[i],
+                info: v.name + "：" + v.values[j].value + infos[i],
                 value: cpt[i][j]
-              })
+              });
             }
-            namedCpt.push(temp)
+            namedCpt.push(temp);
           }
-          this.namedCpt = namedCpt
-          console.log(this.namedCpt)
+          this.namedCpt = namedCpt;
           break;
         }
       }
@@ -193,12 +192,6 @@ export default {
 };
 </script>
 <style scoped>
-.echart {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 .fit {
   width: 100%;
   height: 100%;

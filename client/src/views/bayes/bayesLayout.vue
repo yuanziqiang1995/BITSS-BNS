@@ -14,8 +14,6 @@
   </div>
 </template>
 <script>
-import echarts from "echarts";
-// import {mapState} from 'vuex'
 
 export default {
   name: "bayesLayout",
@@ -25,12 +23,6 @@ export default {
 };
 </script>
 <style scoped>
-.echart {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 .fit {
   width: 100%;
   height: 100%;

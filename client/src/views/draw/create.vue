@@ -5,16 +5,13 @@
         <el-button size="medium" style @click="handleNotUse()" type="primary">不使用数据集</el-button>
       </div>
       <el-table
-        :key="tableKey"
         :data="list"
         v-loading="listLoading"
         element-loading-text="给我一点时间"
         border
-        highlight-current-row
-        style="width: 100%"
-        @selection-change="handleDownloads"
+        size='mini'
       >
-        <el-table-column type="selection" width="55"></el-table-column>
+        <el-table-column type="selection" width="40"></el-table-column>
         <el-table-column align="center" label width="65" type="index" :index="indexMethod"></el-table-column>
        <el-table-column align="center" label="数据集名称" prop="name" />
         <el-table-column align="center" label="数据集描述" prop="description" />
@@ -33,11 +30,9 @@
         <el-table-column
           align="center"
           label="操作"
-          width="400"
-          class-name="small-padding fixed-width"
         >
           <template slot-scope="scope">
-            <el-button
+            <!-- <el-button
               size="small"
               type="primary"
               @click="handleEdit(scope.row)"
@@ -48,7 +43,7 @@
               type="primary"
               @click="handleDownload(scope.row)"
               style="margin-left:10px"
-            >下载</el-button>
+            >下载</el-button> -->
             <el-button
               size="small"
               type="success"
@@ -186,24 +181,6 @@ export default {
       // var t = Y + '-' + m + '-' + d;
       return t;
     }
-  },
-  created() {
-    this.getList();
-    fetchDataFormatList(this.listQuery).then(response => {
-      this.dataformatOptions = response.data.format.map(item => {
-        return { value: item.id, label: item.name };
-      });
-    });
-    fetchDataTypeList().then(response => {
-      // this.data = response.data.data
-      for (const v of response.data.data) {
-        v.label = v.name;
-        this.dataTypeData.push(v);
-      }
-      this.dataTypeData = arrayToTree1(this.dataTypeData);
-      console.log("树状结构");
-      console.log(this.dataTypeData);
-    });
   },
   mounted() {
    this.queryData(1);

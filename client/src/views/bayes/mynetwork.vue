@@ -48,12 +48,11 @@ export default {
           mutual: x.mutual
         };
       });
-      let linkDataArray = model.link
+      let linkDataArray = model.link;
       this.myDiagram.model = new go.GraphLinksModel(
         nodeDataArray,
         linkDataArray
       );
-       
     },
     getModel() {
       return {
@@ -85,16 +84,14 @@ export default {
             isGroup: true,
             color: "blue"
           },
-        allowDelete:false,
+          allowDelete: !this.readOnly,
           // "grid.visible":true,
           // enable undo & redo
-          "validCycle":go.Diagram.CycleNotDirected,
+          validCycle: go.Diagram.CycleNotDirected,
           "undoManager.isEnabled": !this.readOnly,
           "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom
         }
       );
-
-      
 
       var nodeSelectionAdornmentTemplate = MAKE(
         go.Adornment,
@@ -308,7 +305,7 @@ export default {
       this.myDiagram.nodeTemplate = MAKE(
         go.Node,
         "Auto",
-        { locationSpot: go.Spot.Center},
+        { locationSpot: go.Spot.Center },
         new go.Binding("location", "loc", go.Point.parse).makeTwoWay(
           go.Point.stringify
         ),
@@ -325,18 +322,23 @@ export default {
           rotatable: true,
           rotateAdornmentTemplate: nodeRotateAdornmentTemplate
         },
-        MAKE(go.Shape, "Rectangle", {
-          fill: "#E6F7FF", // the default fill, if there is no data bound value
-          portId: "",
-          cursor: "pointer", // the Shape is the port, not the whole Node
-          // allow all kinds of links from and to this port
-              fromLinkable: !this.readOnly,
+        MAKE(
+          go.Shape,
+          "Rectangle",
+          {
+            fill: "#E6F7FF", // the default fill, if there is no data bound value
+            portId: "",
+            cursor: "pointer", // the Shape is the port, not the whole Node
+            // allow all kinds of links from and to this port
+            fromLinkable: !this.readOnly,
             fromLinkableSelfNode: false,
             fromLinkableDuplicates: false,
             toLinkable: !this.readOnly,
             toLinkableSelfNode: false,
-            toLinkableDuplicates: false,
-        },new go.Binding("fill","color")),
+            toLinkableDuplicates: false
+          },
+          new go.Binding("fill", "color")
+        ),
         MAKE(
           go.TextBlock,
           {
@@ -403,7 +405,7 @@ export default {
             stroke: "rgba(0,0,0,0.5)"
           },
           new go.Binding("stroke", "color"),
-          new go.Binding("strokeDashArray","dash")
+          new go.Binding("strokeDashArray", "dash")
         ),
         MAKE(
           go.Shape,
@@ -581,7 +583,18 @@ export default {
       if (this.treeLayout) {
         this.myDiagram.layout = MAKE(go.TreeLayout);
       }
-    
+this.myDiagram.commandHandler.canDeleteSelection = e => {
+        //用例获取选中的节点或线
+        return this.myDiagram.selection.all(function(nodeOrLink) {
+          //判断是否存在不允许删除的节点或线
+          
+          if (!nodeOrLink.data||!nodeOrLink.data.hasOwnProperty("from")) {
+            return false;
+          } else {
+            return true;
+          }
+        });
+      };
       // Create the Diagram's Model:
       this.modelChanged(this.model);
     }
@@ -589,52 +602,4 @@ export default {
 };
 </script>
 <style scoped>
-#form-wrap {
-  padding: 20px 40px;
-  background-color: white;
-  border: solid 1px rgb(244, 244, 244);
-}
-
-#submit {
-  width: 102px;
-  height: 40px;
-  float: right;
-  margin: 20px 5px 16px 0;
-}
-
-#chart-wrap {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 22px;
-}
-#chart-wrap #chart-palette {
-  width: 180px;
-  margin-right: 30px;
-  background-color: white;
-  border: solid 1px rgb(244, 244, 244);
-}
-
-#chart-wrap #chart-diagram {
-  flex-grow: 1;
-  height: 720px;
-  background-color: white;
-  border: solid 1px rgb(244, 244, 244);
-}
-#lateEntry {
-  clear: both;
-  background-color: rgb(255, 255, 255);
-  border: solid 1px rgb(244, 244, 244);
-}
-#lateEntry > span {
-  display: inline-block;
-  height: 50px;
-  font-size: 16px;
-  line-height: 50px;
-  text-indent: 30px;
-  letter-spacing: 0.8px;
-  text-align: left;
-  color: rgb(35, 35, 35);
-  border-bottom: 1px solid rgb(234, 234, 234);
-}
 </style>

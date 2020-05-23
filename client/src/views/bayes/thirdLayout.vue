@@ -12,10 +12,10 @@
       <div
         style="display:flex;flex-direction:row;flex-grow:2;height:0;width:100%;border-top:1px solid rgba(0,0,0,0.13)"
       >
-        <div style="height:100%;flex-grow:1;width:0;border-right:1px solid rgba(0,0,0,0.13)">
+        <div style="height:100%;flex-grow:2;width:0;border-right:1px solid rgba(0,0,0,0.13)">
           <slot name="b1"></slot>
         </div>
-        <div style="height:100%;flex-grow:1;width:0;">
+        <div style="height:100%;flex-grow:3;width:0;">
           <slot name="b2"></slot>
         </div>
       </div>
@@ -26,9 +26,6 @@
   </div>
 </template>
 <script>
-import echarts from "echarts";
-// import {mapState} from 'vuex'
-
 export default {
   name: "thirdLayout",
   data() {
@@ -37,12 +34,6 @@ export default {
 };
 </script>
 <style scoped>
-.echart {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 .fit {
   width: 100%;
   height: 100%;

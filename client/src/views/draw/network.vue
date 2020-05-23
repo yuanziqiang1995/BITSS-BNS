@@ -15,10 +15,8 @@
         v-loading="listLoading"
         element-loading-text="给我一点时间"
         border
-        highlight-current-row
-        @selection-change="handleDownloads"
       >
-        <el-table-column type="selection" width="55"></el-table-column>
+        <el-table-column type="selection" width="40"></el-table-column>
         <el-table-column align="center" label width="65" type="index" :index="indexMethod"></el-table-column>
         <el-table-column align="center" label="网络名称" prop="modelName" />
         <el-table-column align="center" label="网络描述" prop="description" />
@@ -70,7 +68,7 @@
         ></el-pagination>
       </div>
     </div>
-    <el-dialog title="数据基本信息" :visible.sync="dialogFormVisible" v-dialogDrag>
+    <el-dialog title="数据基本信息" :visible.sync="dialogFormVisible" >
       <el-form
         :rules="rules"
         ref="dataForm"
@@ -209,24 +207,6 @@ export default {
       // var t = Y + '-' + m + '-' + d;
       return t;
     }
-  },
-  created() {
-    this.getList();
-    fetchDataFormatList(this.listQuery).then(response => {
-      this.dataformatOptions = response.data.format.map(item => {
-        return { value: item.id, label: item.name };
-      });
-    });
-    fetchDataTypeList().then(response => {
-      // this.data = response.data.data
-      for (const v of response.data.data) {
-        v.label = v.name;
-        this.dataTypeData.push(v);
-      }
-      this.dataTypeData = arrayToTree1(this.dataTypeData);
-      console.log("树状结构");
-      console.log(this.dataTypeData);
-    });
   },
   mounted() {
     const that = this;

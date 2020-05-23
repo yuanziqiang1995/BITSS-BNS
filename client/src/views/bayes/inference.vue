@@ -1,7 +1,7 @@
 <template>
   <div class="fit" style="height:calc(100vh - 50px)">
     <fourthLayout>
-      <testgo :inference="inference" id="ddd2" slot="left" :model="model" :idMap="idMap"></testgo>
+      <inferenceNetwork :inference="inference" id="ddd2" slot="left" :model="model" :idMap="idMap"></inferenceNetwork>
 
       <div slot="right" style="display:flex;flex-direction:column;height:100%;">
         <div
@@ -321,22 +321,17 @@
 </template>
 <script>
 import fourthLayout from "./fourthLayout";
-import mynetwork from "./mynetwork";
-import testgo from "./testgo";
+import inferenceNetwork from "./inferenceNetwork";
 import PixelMap from "@/components/visual/PixelMap";
 import MultiPixelMap from "@/components/visual/MultiPixelMap";
-import Bar from "@/components/echarts/Bar";
-// import {mapState} from 'vuex'
 
 export default {
   name: "inference",
   components: {
     fourthLayout,
-    mynetwork,
-    testgo,
+    inferenceNetwork,
     PixelMap,
-    MultiPixelMap,
-    Bar
+    MultiPixelMap
   },
   mounted() {
     this.networkId = this.$route.query.modelId;
@@ -372,7 +367,6 @@ export default {
             })
           };
           this.pageLoading = false;
-          console.log(this.model, this.nodeInfo, this.idMap);
           for (let i of this.nodeInfo) {
             this.idMap[i.nodeId] = i;
           }
@@ -434,7 +428,6 @@ export default {
   },
   watch: {
     currentVariable(to, from) {
-      console.log(to, this.currentVariable);
       if (to != null) {
         this.currentValues = this.variables[to].values;
       } else {
@@ -483,7 +476,7 @@ export default {
         });
         return;
       }
-       let evidenceSet = new Set(this.evidenceList);
+      let evidenceSet = new Set(this.evidenceList);
       let targetSet = new Set(this.targetList);
       this.inferenceLoading = true;
       this.$request
@@ -555,7 +548,7 @@ export default {
               i.borderColor = [0x33, 0xa7, 0xeb];
             }
           }
-        
+
           let list = nodeList;
           this.inference = {
             nodeList,
@@ -781,12 +774,6 @@ export default {
 };
 </script>
 <style scoped>
-.echart {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 .fit {
   width: 100%;
   height: 100%;

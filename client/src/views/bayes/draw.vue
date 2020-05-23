@@ -105,10 +105,8 @@
   </drawLayout>
 </template>
 <script>
-import echarts from "echarts";
 import drawLayout from "./drawLayout";
 import drawNetwork from "./drawNetwork";
-// import {mapState} from 'vuex'
 
 export default {
   name: "first",
@@ -138,7 +136,6 @@ export default {
             };
           }
           this.hasName = true;
-          console.log(JSON.parse(res.data.data));
         });
     }
     setTimeout(() => {
@@ -414,7 +411,6 @@ export default {
         return;
       }
       this.linkInfo = null;
-      console.log(data);
       if (this.nodeMap[data.key]) {
       } else {
         this.nodeMap[data.key] = {};
@@ -423,7 +419,6 @@ export default {
       this.nodeId = data.key;
       this.nodeName = data.text;
 
-      //   console.log(id);
     },
     getModel() {
       return this.$refs.drawNetwork.getModel();
@@ -432,12 +427,6 @@ export default {
 };
 </script>
 <style scoped>
-.echart {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 .fit {
   width: 100%;
   height: 100%;
