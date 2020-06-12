@@ -227,53 +227,6 @@ export default {
       // a context menu is an Adornment with a bunch of buttons in them
       var partContextMenu = MAKE(
         "ContextMenu",
-        makeButton("Properties", function(e, obj) {
-          // OBJ is this Button
-          var contextmenu = obj.part; // the Button is in the context menu Adornment
-          var part = contextmenu.adornedPart; // the adornedPart is the Part that the context menu adorns
-          // now can do something with PART, or with its data, or with the Adornment (the context menu)
-          if (part instanceof go.Link) alert(linkInfo(part.data));
-          else if (part instanceof go.Group) alert(groupInfo(contextmenu));
-          else alert(nodeInfo(part.data));
-        }),
-        makeButton(
-          "Cut",
-          function(e, obj) {
-            e.diagram.commandHandler.cutSelection();
-          },
-          function(o) {
-            return o.diagram.commandHandler.canCutSelection();
-          }
-        ),
-        makeButton(
-          "Copy",
-          function(e, obj) {
-            e.diagram.commandHandler.copySelection();
-          },
-          function(o) {
-            return o.diagram.commandHandler.canCopySelection();
-          }
-        ),
-        makeButton(
-          "Paste",
-          function(e, obj) {
-            e.diagram.commandHandler.pasteSelection(
-              e.diagram.lastInput.documentPoint
-            );
-          },
-          function(o) {
-            return o.diagram.commandHandler.canPasteSelection();
-          }
-        ),
-        makeButton(
-          "Delete",
-          function(e, obj) {
-            e.diagram.commandHandler.deleteSelection();
-          },
-          function(o) {
-            return o.diagram.commandHandler.canDeleteSelection();
-          }
-        ),
         makeButton(
           "Undo",
           function(e, obj) {
@@ -291,31 +244,13 @@ export default {
           function(o) {
             return o.diagram.commandHandler.canRedo();
           }
-        ),
-        makeButton(
-          "Group",
-          function(e, obj) {
-            e.diagram.commandHandler.groupSelection();
-          },
-          function(o) {
-            return o.diagram.commandHandler.canGroupSelection();
-          }
-        ),
-        makeButton(
-          "Ungroup",
-          function(e, obj) {
-            e.diagram.commandHandler.ungroupSelection();
-          },
-          function(o) {
-            return o.diagram.commandHandler.canUngroupSelection();
-          }
         )
       );
       function nodeInfo(d) {
         // Tooltip info for a node data object
-        var str = "Node " + d.key + ": " + d.text + "\n";
-        if (d.group) str += "member of " + d.group;
-        else str += "top-level node";
+        var str = "节点名：" + d.text;
+        if(d.extra)
+        str += "\n互信息：" + d.extra;
         return str;
       }
       // These nodes have text surrounded by a rounded rectangle
@@ -387,7 +322,17 @@ export default {
       // Define the appearance and behavior for Links:
       function linkInfo(d) {
         // Tooltip info for a link data object
-        return "Link:\nfrom " + d.from + " to " + d.to;
+        let str = "连线:\nfrom " + d.from + " to " + d.to;
+        
+        if(d.color === "#00FF7F"){
+          str += '\n建议添加'
+        } else if(d.color === 'red'){
+          str += '\n互信息：' + d.mutual;
+          str += '\n建议删除'
+        } else {
+          str += '\n互信息：' + d.mutual;
+        }
+        return str;
       }
       var linkSelectionAdornmentTemplate = MAKE(
         go.Adornment,
@@ -551,11 +496,11 @@ export default {
       function diagramInfo(model) {
         // Tooltip info for the diagram's model
         return (
-          "Model:\n" +
+          "统计信息:\n" +
           model.nodeDataArray.length +
-          " nodes, " +
+          " 个节点, " +
           model.linkDataArray.length +
-          " links"
+          " 条连线"
         );
       }
       // provide a tooltip for the background of the Diagram, when not over any Part
@@ -570,17 +515,6 @@ export default {
       // provide a context menu for the background of the Diagram, when not over any Part
       this.myDiagram.contextMenu = MAKE(
         "ContextMenu",
-        makeButton(
-          "Paste",
-          function(e, obj) {
-            e.diagram.commandHandler.pasteSelection(
-              e.diagram.lastInput.documentPoint
-            );
-          },
-          function(o) {
-            return o.diagram.commandHandler.canPasteSelection();
-          }
-        ),
         makeButton(
           "Undo",
           function(e, obj) {
@@ -639,6 +573,7 @@ export default {
             }
           }
           this.myDiagram.model.setDataProperty(data, "color", "#E6F7FF");
+          this.myDiagram.model.setDataProperty(data, "extra", null);
           for (let i in mutual) {
             let d = this.myDiagram.model.findNodeDataForKey(i);
             let v = (mutual[i] - minv) / (maxv - minv);
@@ -649,6 +584,7 @@ export default {
               (255 * (1 - v) + 159 * v) +
               ",255)";
             this.myDiagram.model.setDataProperty(d, "color", color);
+            this.myDiagram.model.setDataProperty(d, "extra",mutual[i]);
           }
           // this.myDiagram.model.setDataProperty(data, 'color', 'purple');
         }

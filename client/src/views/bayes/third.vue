@@ -301,6 +301,12 @@ export default {
             }
             cpts.push(r[index]);
           }
+           let mutuals = JSON.parse(r[index]);
+              for (let i = 0; i < mutuals.length; i++) {
+                tempModel.linkList[i].mutual = mutuals[i];
+              }
+          let nodeMutual = JSON.parse(r[index + 1].replace(/'/g, '"'));
+
           for (let i of cpts) {
             let t = i.split("\t");
             let sequence = JSON.parse(t[3].replace(/'/g, '"'));
@@ -318,6 +324,7 @@ export default {
               nodeId: t[0],
               nodeName: t[0],
               valueNum: +t[1],
+              mutual: nodeMutual[t[0]],
               CPT: cpt,
               sequence,
               stringCPT

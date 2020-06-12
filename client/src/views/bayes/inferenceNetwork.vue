@@ -350,53 +350,6 @@ export default {
       // a context menu is an Adornment with a bunch of buttons in them
       var partContextMenu = MAKE(
         "ContextMenu",
-        makeButton("Properties", function(e, obj) {
-          // OBJ is this Button
-          var contextmenu = obj.part; // the Button is in the context menu Adornment
-          var part = contextmenu.adornedPart; // the adornedPart is the Part that the context menu adorns
-          // now can do something with PART, or with its data, or with the Adornment (the context menu)
-          if (part instanceof go.Link) alert(linkInfo(part.data));
-          else if (part instanceof go.Group) alert(groupInfo(contextmenu));
-          else alert(nodeInfo(part.data));
-        }),
-        makeButton(
-          "Cut",
-          function(e, obj) {
-            e.diagram.commandHandler.cutSelection();
-          },
-          function(o) {
-            return o.diagram.commandHandler.canCutSelection();
-          }
-        ),
-        makeButton(
-          "Copy",
-          function(e, obj) {
-            e.diagram.commandHandler.copySelection();
-          },
-          function(o) {
-            return o.diagram.commandHandler.canCopySelection();
-          }
-        ),
-        makeButton(
-          "Paste",
-          function(e, obj) {
-            e.diagram.commandHandler.pasteSelection(
-              e.diagram.lastInput.documentPoint
-            );
-          },
-          function(o) {
-            return o.diagram.commandHandler.canPasteSelection();
-          }
-        ),
-        makeButton(
-          "Delete",
-          function(e, obj) {
-            e.diagram.commandHandler.deleteSelection();
-          },
-          function(o) {
-            return o.diagram.commandHandler.canDeleteSelection();
-          }
-        ),
         makeButton(
           "Undo",
           function(e, obj) {
@@ -413,24 +366,6 @@ export default {
           },
           function(o) {
             return o.diagram.commandHandler.canRedo();
-          }
-        ),
-        makeButton(
-          "Group",
-          function(e, obj) {
-            e.diagram.commandHandler.groupSelection();
-          },
-          function(o) {
-            return o.diagram.commandHandler.canGroupSelection();
-          }
-        ),
-        makeButton(
-          "Ungroup",
-          function(e, obj) {
-            e.diagram.commandHandler.ungroupSelection();
-          },
-          function(o) {
-            return o.diagram.commandHandler.canUngroupSelection();
           }
         )
       );
@@ -838,163 +773,10 @@ export default {
 
         // )
       );
-      // this.myDiagram.nodeTemplate = MAKE(
-      //   go.Node,
-      //   MAKE(
-      //     go.Panel,
-      //     "Spot",
-      //     {
-      //       background: "#F5F5F5",
-      //       width: 150
-      //     },
-      //     // MAKE(go.Shape, "RoundedRectangle", {
-      //     //   // width: 150,
-      //     //   // height: 150,
-      //     //   fill: "#aecaea",
-      //     //   stroke: null
-      //     // }),
-      //     // MAKE(go.TextBlock, {
-      //     //   //控制文字显示
-      //     //   font: "bold 10pt Microsoft YaHei, Arial, sans-serif",
-      //     //   stroke: "#5687b3",
-      //     //   width: 100,
-      //     //   alignment: go.Spot.Center,
-      //     //   text: "以蓝色为主块,其他块在蓝色块上的相对位置"
-      //     // }),
-      //     // MAKE(
-      //     //   go.Panel,
-      //     //   "Table",
-      //     //   { background: "#ffffff",alignment:go.Spot.Center },
-      //     //   MAKE(
-      //     //     go.Panel,
-      //     //     "TableRow",
-      //     //     { background: "#E6F7FF" },
-      //     //     // header
-      //     //     MAKE(
-      //     //       go.Picture,
-      //     //       // Pictures 应该指定宽高.
-      //     //       // 当没有图片时显示红色的背景
-      //     //       // 或者当图片为透明的时候也是.
-      //     //       { margin: 8, width: 20, height: 20, alignment: go.Spot.Left },
-      //     //       // Picture.source参数值与模型数据中的"source"字段绑定
-      //     //       new go.Binding("source")
-      //     //     ),
-      //     //     MAKE(
-      //     //       go.TextBlock,
-      //     //       {
-      //     //         alignment: go.Spot.Left,
-      //     //         margin: new go.Margin(5, 0, 5, 10),
-      //     //         font: "11pt sans-serif", // 表头字体样式调整
-      //     //         isMultiline: false,
-      //     //         editable: false
-      //     //       },
-      //     //       new go.Binding("text", "name").makeTwoWay()
-      //     //     )
-      //     //   ),
-      //     //   // properties
-      //     //   MAKE(
-      //     //     go.TextBlock,
-      //     //     "Properties",
-      //     //     {
-      //     //       font: "italic 10pt sans-serif"
-      //     //     },
-      //     //     new go.Binding("visible", "visible", function(v) {
-      //     //       return !v;
-      //     //     }).ofObject("PROPERTIES")
-      //     //   ),
-      //     //   MAKE(
-      //     //     go.Panel,
-      //     //     "Table",
-      //     //     { name: "PROPERTIES" },
-      //     //     new go.Binding("itemArray", "properties"),
-      //     //     {
-      //     //       row: 1,
-      //     //       defaultAlignment: go.Spot.Left,
-      //     //       padding: new go.Margin(0, 8, 0, 8),
-      //     //       background: "#ffffff",
-      //     //       itemTemplate: propertyTemplate
-      //     //     }
-      //     //   )
-      //     // ),
-      //     // MAKE(go.Shape, "RoundedRectangle", {
-      //     //   width: 100,
-      //     //   height: 100,
-      //     //   alignment: go.Spot.TopLeft,
-      //     //   fill: "#ffda92",
-      //     //   stroke: null
-      //     // }),
-      //     // MAKE(
-      //     //   go.TextBlock,
-      //     //   {
-      //     //     //控制文字显示
-      //     //     font: "bold 16pt Microsoft YaHei, Arial, sans-serif",
-      //     //     stroke: "#5687b3",
-      //     //     alignment: go.Spot.TopRight,
-      //     //     text: "hhhh",
-      //     //     textAlign: "center"
-      //     //   },
-      //     //   new go.Binding("text").makeTwoWay()
-      //     // ),
-      //      MAKE(
-      //       go.Panel,
-      //       "Table",
-      //       { background: "#ffffff",alignment:go.Spot.Left },
-      //       MAKE(
-      //         go.Panel,
-      //         "TableRow",
-      //         { background: "#E6F7FF" },
-      //         // header
-      //         MAKE(
-      //           go.Picture,
-      //           // Pictures 应该指定宽高.
-      //           // 当没有图片时显示红色的背景
-      //           // 或者当图片为透明的时候也是.
-      //           { margin: 8, width: 20, height: 20, alignment: go.Spot.Left },
-      //           // Picture.source参数值与模型数据中的"source"字段绑定
-      //           new go.Binding("source")
-      //         ),
-      //         MAKE(
-      //           go.TextBlock,
-      //           {
-      //             alignment: go.Spot.Left,
-      //             margin: new go.Margin(5, 0, 5, 10),
-      //             font: "11pt sans-serif", // 表头字体样式调整
-      //             isMultiline: false,
-      //             editable: false
-      //           },
-      //           new go.Binding("text", "name").makeTwoWay()
-      //         )
-      //       ),
-      //       // properties
-      //       MAKE(
-      //         go.TextBlock,
-      //         "Properties",
-      //         {
-      //           font: "italic 10pt sans-serif"
-      //         },
-      //         new go.Binding("visible", "visible", function(v) {
-      //           return !v;
-      //         }).ofObject("PROPERTIES")
-      //       ),
-      //       MAKE(
-      //         go.Panel,
-      //         "Table",
-      //         { name: "PROPERTIES" },
-      //         new go.Binding("itemArray", "properties"),
-      //         {
-      //           row: 1,
-      //           defaultAlignment: go.Spot.Left,
-      //           padding: new go.Margin(0, 8, 0, 8),
-      //           background: "#ffffff",
-      //           itemTemplate: propertyTemplate
-      //         }
-      //       )
-      //     ),
-      //   ) //go.Panel的括号
-      // ); //go.Node的括号
+
       function linkInfo(d) {
         // Tooltip info for a link data object
-        return "Link:\nfrom " + d.from + " to " + d.to;
+        return "连线:\nfrom " + d.from + " to " + d.to;
       }
       var linkSelectionAdornmentTemplate = MAKE(
         go.Adornment,
@@ -1150,11 +932,11 @@ export default {
       function diagramInfo(model) {
         // Tooltip info for the diagram's model
         return (
-          "Model:\n" +
+          "统计信息:\n" +
           model.nodeDataArray.length +
-          " nodes, " +
+          " 个节点, " +
           model.linkDataArray.length +
-          " links"
+          " 条连线"
         );
       }
       // provide a tooltip for the background of the Diagram, when not over any Part
@@ -1169,17 +951,6 @@ export default {
       // provide a context menu for the background of the Diagram, when not over any Part
       this.myDiagram.contextMenu = MAKE(
         "ContextMenu",
-        makeButton(
-          "Paste",
-          function(e, obj) {
-            e.diagram.commandHandler.pasteSelection(
-              e.diagram.lastInput.documentPoint
-            );
-          },
-          function(o) {
-            return o.diagram.commandHandler.canPasteSelection();
-          }
-        ),
         makeButton(
           "Undo",
           function(e, obj) {
